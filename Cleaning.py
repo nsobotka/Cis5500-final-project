@@ -86,16 +86,71 @@ def songs():
     return
 
 # songs()
-
-def artists():
-    pass
-
-def album_info():
-    pass
-
-
+def create_chart():
+    col_names = ['title', 'rank', 'date', 'artist', 'url', 'region',
+                'chart', 'trend', 'streams']
+    charts = pd.read_csv('charts.csv', header=None, names=col_names, low_memory=False)
+    charts.to_pickle('temp_chart')
 
 def charts():
-    # This is complicated because we want to add song_id and artist_id from the previous two tables into this table.
+    charts = pd.read_pickle('temp_chart')
+    charts = charts.drop([0])
+
+    chartsNew = pd.DataFrame(columns = ['title', 'rank', 'date', 'artist', 'url', 'region',
+                'chart', 'trend', 'streams'])
+
+    chartsDict = {}
+
+    counter = 0
+    for i in charts.index[25000001:]: #charts.index:
+        try:
+            splitArtists = charts['artist'][i].strip('\'`][')
+        except:
+            continue
+        splitArtists = splitArtists.replace("'", "")
+        splitArtists = splitArtists.split(",")
+        for j in range(len(splitArtists)):
+            splitArtists[j] = splitArtists[j].lstrip()
+        if len(splitArtists) > 1:
+            for j in range(len(splitArtists)):
+                chartsDict[counter] = {'title': charts['title'][i], 'rank': charts['rank'][i], 'date': charts['date'][i], 'artist': splitArtists[j], 'url': charts['url'][i], 'region': charts['region'][i],
+                                    'chart': charts['chart'][i], 'trend': charts['trend'][i]}
+                counter = counter + 1
+        else: 
+            chartsDict[counter] = {'title': charts['title'][i], 'rank': charts['rank'][i], 'date': charts['date'][i], 'artist': splitArtists[0], 'url': charts['url'][i], 'region': charts['region'][i],
+                                    'chart': charts['chart'][i], 'trend': charts['trend'][i]}
+            counter = counter + 1
+
+    chartsNew = DataFrame.from_dict(chartsDict, "index")
+    chartsNew.to_pickle('chart_part11')
+    return
+
+# charts()
+
+def addInKeys():
+    charts1 = pd.read_pickle('chart_part1')
+    charts1.to_csv('charts_processed1.csv', index=False)
+    charts2 = pd.read_pickle('chart_part2')
+    charts2.to_csv('charts_processed2.csv', index=False)
+    charts3 = pd.read_pickle('chart_part3')
+    charts3.to_csv('charts_processed3.csv', index=False)
+    charts4 = pd.read_pickle('chart_part4')
+    charts4.to_csv('charts_processed4.csv', index=False)
+    charts5 = pd.read_pickle('chart_part5')
+    charts5.to_csv('charts_processed5.csv', index=False)
+    charts6 = pd.read_pickle('chart_part6')
+    charts6.to_csv('charts_processed6.csv', index=False)
+    charts7 = pd.read_pickle('chart_part7')
+    charts7.to_csv('charts_processed7.csv', index=False)
+    charts8 = pd.read_pickle('chart_part8')
+    charts8.to_csv('charts_processed8.csv', index=False)
+    charts9 = pd.read_pickle('chart_part9')
+    charts9.to_csv('charts_processed9.csv', index=False)
+    charts10 = pd.read_pickle('chart_part10')
+    charts10.to_csv('charts_processed10.csv', index=False)
+    charts11 = pd.read_pickle('chart_part11')
+    charts11.to_csv('charts_processed11.csv', index=False)
     pass
+
+addInKeys()
 
