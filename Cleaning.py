@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from pandas import DataFrame
 
 
 # first deal with genres
@@ -31,35 +32,60 @@ def songs():
     songs = songs.drop([0])
     songs = songs.drop(columns=['year', 'track_number', 'disk_number'])
 
-    songsNew = pd.DataFrame(columns = ['id', 'name', 'album', 'album_id', 'artists', 'artist_ids',
+    songs = songs.dropna()
+
+    songsDict = {}
+    songsNew = pd.DataFrame(columns = ['id', 'name', 'album_id', 'artist_id',
                 'explicit', 'danceability', 
                 'energy', 'key', 'loudness', 'mode', 'speechiness', 'acousticness',
                 'instrumentalness', 'liveness', 'valence', 'tempo',
-                'duration_ms', 'time_signature', 'release_date'])
+                'duration_ms', 'time_signature'])
 
-    count = 0
+    albumsDict = {}
+    albums = pd.DataFrame(columns = ['album', 'album_id', 'release_date'])
+
+    artistDict = {}
+    artists = pd.DataFrame(columns = ['artist', 'artist_id'])
+    # split songs apart by multiple artists
+    counter = 0
     for i in songs.index:
-        print(i)
-        print(songs.loc[[i]])
-        print(songs['id'][i], songs['name'][i])
-        length = len(songs['artists'][i].split(","))
-        if length > 1:
-            print(songs['artists'][i].split(","))
-            # add a new row per artist name
-            # songsNew = songsNew.append(songs[i])
+        splitArtists = songs['artists'][i].strip('\'`][')
+        splitArtists = splitArtists.replace("'", "")
+        splitArtists = splitArtists.split(",")
+        splitArtistsId = songs['artist_ids'][i].strip('\'`][')
+        splitArtistsId = splitArtistsId.replace("'", "")
+        splitArtistsId = splitArtistsId.split(",")
+        if (len(splitArtists) != len(splitArtistsId)):
+            continue
+        for j in range(len(splitArtists)):
+            splitArtists[j] = splitArtists[j].lstrip()
+            splitArtistsId[j] = splitArtistsId[j].lstrip()
+        albumsDict[counter] = {'album': songs['album'][i], 'album_id': songs['album_id'][i], 'release_date': songs['release_date'][i]}
+        if len(splitArtists) > 1:
+            for j in range(len(splitArtists)):
+                artistDict[counter] = {'artist': splitArtists[j], 'artist_id': splitArtistsId[j]}
+                songsDict[counter] = {'id': songs['id'][i], 'name': songs['name'][i], 'album_id': songs['album_id'][i], 'artist_ids': splitArtistsId[j], 'explicit': songs['explicit'][i], 'danceability': songs['danceability'][i],
+                                    'energy': songs['energy'][i], 'key': songs['key'][i], 'loudness': songs['loudness'][i], 'mode': songs['mode'][i], 'speechiness': songs['speechiness'][i], 'acousticness': songs['acousticness'][i], 'instrumentalness': songs['instrumentalness'][i], 
+                                    'liveness': songs['liveness'][i], 'valence': songs['valence'][i], 'tempo': songs['tempo'][i], 'duration_ms': songs['duration_ms'][i], 'time_signature': songs['time_signature'][i]}
+                counter = counter + 1
         else: 
-            songsNew = songsNew.append(songs.loc[[i]])
-        #     continue
-        
-        count = count + 1
-        if count > 4:
-            break
+            artistDict[counter] = {'artist': splitArtists[0], 'artist_id': splitArtistsId[0]}
+            songsDict[counter] = {'id': songs['id'][i], 'name': songs['name'][i], 'album_id': songs['album_id'][i], 'artist_ids': splitArtistsId[0], 'explicit': songs['explicit'][i], 'danceability': songs['danceability'][i],
+                                    'energy': songs['energy'][i], 'key': songs['key'][i], 'loudness': songs['loudness'][i], 'mode': songs['mode'][i], 'speechiness': songs['speechiness'][i], 'acousticness': songs['acousticness'][i], 'instrumentalness': songs['instrumentalness'][i], 
+                                    'liveness': songs['liveness'][i], 'valence': songs['valence'][i], 'tempo': songs['tempo'][i], 'duration_ms': songs['duration_ms'][i], 'time_signature': songs['time_signature'][i]}
+            counter = counter + 1
 
-    # print(songs.head())
-    print(songsNew.head())
-    pass
+    albums = DataFrame.from_dict(albumsDict, "index")
+    artists = DataFrame.from_dict(artistDict, "index")
+    songsNew = DataFrame.from_dict(songsDict, "index")
+    albums = albums.drop_duplicates()
+    artists = artists.drop_duplicates()
+    albums.to_csv('albums_processed.csv', index=False)
+    artists.to_csv('artists_processed.csv', index=False)
+    songsNew.to_csv('songs_processed.csv', index=False)
+    return
 
-songs()
+# songs()
 
 def artists():
     pass
