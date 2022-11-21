@@ -1,0 +1,207 @@
+
+db_config = {
+    "username" : "admin",
+    "host": "proj-database.csezytyt9fvd.us-east-1.rds.amazonaws.com",
+    "port": "3306",
+    "password": "password"
+}
+
+
+
+# (HARD 1) Given a user defined song, we find similar songs by looking at the given songs artist, 
+# Determining the genres of that artist, finding a user defined number of other artists with similar genres, 
+# and then returning the most popular song from each of those artists.
+# The following query will not have hardcoded values in the React implementation
+
+# Scenario: we are given a coldplay song
+WITH Input_Song AS (
+    SELECT Songs.name_, A.artist, Songs.artist_id
+    FROM Songs JOIN Artists A on Songs.artist_id = A.artist_id
+    WHERE A.artist = 'Coldplay'
+    LIMIT 1
+)
+
+# Now, we found the input songs genre
+, Input_Song_Genre AS (
+    SELECT Genre.artist_mb, SUBSTRING_INDEX(tags_lastfm, ';', 2) as genre_tags
+    FROM Genre JOIN Input_Song ON Genre.artist_mb = artist
+    LIMIT 1
+)
+
+# Now we find artists that are of similar genre to above
+, Similar_Artists AS (
+    SELECT Genre.artist_mb, Genre.tags_lastfm, listeners_lastfm
+    FROM Genre, Input_Song_Genre
+    WHERE Genre.tags_lastfm LIKE CONCAT('%', Input_Song_Genre.genre_tags, '%') AND
+      Genre.artist_mb != Input_Song_Genre.artist_mb
+    ORDER BY listeners_lastfm DESC
+    LIMIT 5 # this parameter can also be user determined
+)
+
+# Similar artist top chart songs
+, Similar_Artists_Songs AS (
+    SELECT title, artist, COUNT(title) as chart_freq
+    FROM Charts JOIN Similar_Artists ON Charts.artist = Similar_Artists.artist_mb
+    GROUP BY title, artist
+    ORDER BY chart_freq DESC
+)
+SELECT * FROM Similar_Artists_Songs GROUP BY(artist);
+
+
+
+# Given a dial, a user interacting with the website can find songs with desired attributed scores for danceability, energy, etc.
+# Note: the ranges below are user determined, we hardcoded them for demonstration purposes
+SELECT name_, A.artist, danceability, energy, speechiness
+FROM Songs JOIN Artists A on Songs.artist_id = A.artist_id
+WHERE danceability > 0.2 AND danceability < 0.5 AND
+      energy > 0.4 AND energy < 0.9 AND
+      loudness > 0.3 AND loudness < 0.7 AND
+      speechiness > 0.1 AND speechiness < 0.6;
+
+
+
+
+
+# (HARD 2) Finds the albums of the most popular artists, where popularity is measured by the number of chart songs.
+WITH Distinct_Artists AS (
+    SELECT DISTINCT Artists.artist_id, Artists.artist
+    FROM Artists
+),
+Most_Popular_Artists AS (
+    SELECT DISTINCT Distinct_Artists.artist_id, Distinct_Artists.artist, COUNT(Distinct_Artists.artist) AS num_chart_songs
+    FROM Distinct_Artists JOIN Charts C on Distinct_Artists.artist = C.artist
+    ORDER BY num_chart_songs DESC
+)
+SELECT DISTINCT artist, album, release_date
+FROM Album_Info JOIN Songs S on Album_Info.album_id = S.album_id JOIN Most_Popular_Artists ON Most_Popular_Artists.artist_id
+WHERE SUBSTR(Album_Info.release_date, 1, 4) = '2020'; # We can pass the year in via our website implementation
+
+
+
+
+
+# Find artists that are related to an inputted artist's genres, ensuring to remove the original artist from consideration. 
+# We hard coded the input artist for demonstration purposes.
+WITH Bruno_Mars_Genres AS (
+    SELECT artist_mb, tags_lastfm
+    FROM Genre
+    WHERE artist_mb = 'Bruno Mars'
+)
+SELECT Genre.artist_mb, Genre.tags_lastfm, listeners_lastfm
+FROM Genre, Bruno_Mars_Genres
+WHERE Genre.tags_lastfm LIKE CONCAT('%', SUBSTRING_INDEX(Bruno_Mars_Genres.tags_lastfm, ';', 2), '%') AND
+      Genre.artist_mb != Bruno_Mars_Genres.artist_mb
+ORDER BY listeners_lastfm DESC;
+
+
+
+
+
+
+# (HARD 3) Given a user inputted song, first find songs of similar danceability and from artists of the same country.
+# Then, find the average number of times these songs appear in the same top chart (determined by region and chart name). 
+# Basically, given a song, we want to know how long that type of song generally spends in the top charts. 
+WITH Input_Song AS (
+    SELECT Songs.artist_id, A.artist, Songs.danceability, Songs.key_, Songs.time_signature
+    FROM Songs JOIN Artists A on Songs.artist_id = A.artist_id
+    WHERE A.artist = 'Eminem' # user inputted
+    LIMIT 1
+),
+Input_Song_Region AS (
+    SELECT country_mb, Input_Song.danceability
+    FROM Genre, Input_Song
+    WHERE Genre.artist_mb = Input_Song.artist
+),
+Songs_Same_Danceability_Region AS (
+    SELECT DISTINCT Songs.name_
+    FROM Songs
+    JOIN Artists ON Songs.artist_id = Artists.artist_id JOIN Genre G on Artists.artist = G.artist_mb, Input_Song_Region
+    WHERE G.country_mb = Input_Song_Region.country_mb AND Songs.danceability >= Input_Song_Region.danceability - 0.1
+                                                      AND Songs.danceability <= Input_Song_Region.danceability + 0.1),
+Freq_Song_On_Chart AS (
+    SELECT chart, region, title, COUNT(date_) as chart_appearances
+    FROM Charts JOIN Songs_Same_Danceability_Region ON Charts.title = Songs_Same_Danceability_Region.name_
+    GROUP BY title, chart, region
+    ORDER BY chart_appearances DESC
+)
+SELECT chart, region, AVG(chart_appearances) as avg_appearances
+FROM Freq_Song_On_Chart
+GROUP BY chart, region;
+
+
+
+
+# (HARD 4) Most successful albums. Success is defined by the number of times songs from that particular album appear
+# in top charts. This is the longest running query, and needs optimization to even know if it runs properly.
+
+WITH Albums_Of_Chart_Songs AS (
+    SELECT DISTINCT C.title, album, C.date_, C.region, C.chart
+    FROM Album_Info
+    JOIN Songs S ON Album_Info.album_id = S.album_id
+    JOIN Artists A on S.artist_id = A.artist_id
+    JOIN Charts C on A.artist = C.artist
+),
+Freq_Song_And_Album_On_Chart AS (
+    SELECT chart, region, title, album, COUNT(date_) as chart_appearances
+    FROM Albums_Of_Chart_Songs
+    GROUP BY album, chart, region
+    ORDER BY chart_appearances DESC
+)
+SELECT * FROM Freq_Song_And_Album_On_Chart GROUP BY(album) ORDER BY chart_appearances DESC;
+
+
+
+
+
+
+
+# Find songs that are in the same key and time signature as a user inputted song.
+WITH Input_Song AS (
+    SELECT Songs.artist_id, Songs.key_, Songs.time_signature
+    FROM Songs JOIN Artists A on Songs.artist_id = A.artist_id
+    WHERE A.artist = 'Coldplay' # user inputted
+    LIMIT 1
+)
+SELECT DISTINCT name_, Artists.artist, Songs.key_, Songs.time_signature
+FROM Songs JOIN Artists ON Songs.artist_id = Artists.artist_id, Input_Song
+WHERE Songs.key_ = Input_Song.key_ AND Songs.time_signature = Input_Song.time_signature;
+
+
+
+
+# Get the most popular artists by region in some user inputted date.
+SELECT DISTINCT date_ as date, region, artist, COUNT(artist) AS artist_freq
+FROM Charts
+WHERE SUBSTR(date_, 1, 4) = '2020' # User inputted
+GROUP BY region
+ORDER BY artist_freq DESC;
+
+
+
+# For a word cloud, what genres are the most popular by country
+SELECT country_mb, tags_lastfm, COUNT(DISTINCT tags_lastfm) as popularity
+FROM Genre
+GROUP BY country_mb
+ORDER BY popularity DESC;
+
+
+
+# Most popular artist from each country.
+WITH Popular_Artists_By_Country AS (
+    SELECT Genre.country_mb, Genre.artist_mb, Genre.listeners_lastfm as num_listeners
+    FROM Genre
+    GROUP BY Genre.country_mb, num_listeners
+    ORDER BY num_listeners DESC
+)
+SELECT * FROM Popular_Artists_By_Country GROUP BY(country_mb);
+
+
+
+
+
+
+
+
+
+
+
