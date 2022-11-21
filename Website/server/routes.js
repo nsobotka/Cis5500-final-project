@@ -40,7 +40,6 @@ async function top_artist_count(req, res) {
         FROM Charts
         GROUP BY region
         ORDER BY top_artist_count DESC`, function (error, results, fields) {
-
             if (error) {
                 console.log(error)
                 res.json({ error: error })
