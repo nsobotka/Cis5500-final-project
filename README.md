@@ -23,8 +23,8 @@ The database spans three datasets obtained from Kaggle:
 	
 ## Structure
 The current directory layout is as follows:
-* Queries.txt: Implementations and Descriptions of planned database queries
-* Cleaning.py: Pre-processing functions
+* Queries.txt: Implementations and descriptions of all database queries
+* Cleaning.py: Pre-processing functions written to clean the dataset and partition it for loading
 * Website
   * Client: Stores the javascript for the core website implementaion, pages, etc. 
   * Docs: Documentation about the structure of the database.
