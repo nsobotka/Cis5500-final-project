@@ -77,18 +77,22 @@ CREATE TABLE Charts
 SELECT count(*)
 FROM Charts;
 
-# For a word cloud, what genres are the most popular by country
-# THIS IS WRONG
-SELECT country_mb, tags_lastfm, COUNT(DISTINCT tags_lastfm) as popularity
-FROM Genre
-GROUP BY country_mb
-ORDER BY popularity DESC;
+# For a word cloud, what tags are the most popular by country
+WITH tags AS (
+    SELECT country_mb, tags_lastfm, COUNT(tags_lastfm) as popularity
+    FROM Genre
+    GROUP BY tags_lastfm
+    ORDER BY popularity DESC
+)
+SELECT *
+FROM tags
+GROUP BY country_mb;
 
 
 # Most popular artist from each country by number of listeners
 WITH Popular_Artists_By_Country AS (
     SELECT Genre.country_mb, Genre.artist_mb, Genre.listeners_lastfm as num_listeners
-    FROM Genre
+    FROM Genre USE INDEX (genre_country_artist_listeners)
     GROUP BY country_mb, num_listeners
     ORDER BY num_listeners DESC
 )
@@ -99,6 +103,9 @@ ON Album_Info(album_id, album, release_date);
 
 CREATE INDEX genre_artist_tags
 ON Genre(artist_mb, tags_lastfm);
+
+CREATE INDEX genre_country_artist_listeners
+ON Genre(country_mb, artist_mb, listeners_lastfm);
 
 CREATE INDEX genre_artist_country
 ON Genre(artist_mb, country_mb);
@@ -130,29 +137,37 @@ ON Charts (artist);
 CREATE INDEX chart_artists
 ON Charts (artist);
 
+CREATE INDEX chart_title_artist
+ON Charts (title, artist);
+
 CREATE INDEX chart_all_attr
 ON Charts (title, date_, artist, region);
 
 CREATE INDEX chart_all_but_title
 ON Charts (date_, artist, region);
 
-# Finds the albums of the most popular artists, where popularity is measured by the number of chart songs (HARD 1)
+CREATE INDEX chart_date_region
+ON Charts (date_, region);
+
+# Finds the albums of the most popular artists, where popularity is measured by the number songs that ever made the top charts (HARD 1)
 WITH filtered_albums AS (
     SELECT album, album_id, release_date
     FROM Album_Info USE INDEX (album_id_name_date)
     WHERE SUBSTR(Album_Info.release_date, 1, 4) = '2020' # We can pass the year in via our website implementation
 ),
-Distinct_Artists AS (
-    SELECT Artists.artist_id, Artists.artist
-    FROM Artists
-),
 Most_Popular_Artists AS (
-    SELECT Distinct_Artists.artist_id, Distinct_Artists.artist, COUNT(Distinct_Artists.artist) AS num_chart_songs
-    FROM Distinct_Artists JOIN Charts C USE INDEX (chart_artists) on Distinct_Artists.artist = C.artist
-    ORDER BY num_chart_songs DESC
+    SELECT Artists.artist_id, Artists.artist, title
+    FROM Artists JOIN Charts C USE INDEX (chart_artists) on Artists.artist = C.artist
+    GROUP BY Artists.artist_id, C.title
+),
+numTimes AS (
+    SELECT artist_id, artist, count(artist) AS numTimes
+    FROM Most_Popular_Artists
+    GROUP BY artist_id
 )
 SELECT DISTINCT artist, album, release_date
-FROM filtered_albums JOIN Songs S USE INDEX (songs_album_artist) on filtered_albums.album_id = S.album_id JOIN Most_Popular_Artists ON Most_Popular_Artists.artist_id;
+FROM filtered_albums JOIN Songs S USE INDEX (songs_album_artist) on filtered_albums.album_id = S.album_id
+                     JOIN numTimes ON numTimes.artist_id = S.artist_id;
 
 # Finds the albums of the most popular artists, where popularity is measured by the number of chart songs (HARD 1)
 # WITH Most_Popular_Artists AS (
@@ -227,15 +242,14 @@ WITH Input_Song AS (
 )
 SELECT * FROM Similar_Artists_Songs GROUP BY(artist);
 
-# Get the most popular artists by region in some user inputted date.
-WITH popular_artists_region AS (
-    SELECT DISTINCT date_ as date, region, artist, COUNT(artist) AS artist_freq
-    FROM Charts USE INDEX (chart_all_but_title)
-    WHERE SUBSTR(date_, 1, 4) = '2020' # User inputted
-    GROUP BY region, artist
-    ORDER BY artist_freq DESC
-)
-SELECT * FROM popular_artists_region GROUP BY region;
+# Get the 5 most popular artists with some user inputted date and region.
+SELECT date_ as date, region, artist, COUNT(artist) AS artist_freq
+FROM Charts USE INDEX (chart_all_but_title)
+WHERE SUBSTR(date_, 1, 4) = '2020' # User inputted
+AND region = 'El Salvador'
+GROUP BY artist
+ORDER BY artist_freq DESC
+LIMIT 5;
 
 # Find songs that are in the same key and time signature as a user inputted song
 WITH Input_Song AS (
@@ -250,6 +264,7 @@ WHERE Songs.key_ = Input_Song.key_ AND Songs.time_signature = Input_Song.time_si
 
 # Given a user inputted song, first find songs of similar danceability and from artists of the same country.
 # Then, find the average number of times these found songs appear in the same top chart (determined by region and chart name) (HARD 3)
+# essentially find how popular a type of song is
 WITH Input_Song AS (
     SELECT Songs.artist_id, A.artist, Songs.danceability, Songs.key_, Songs.time_signature
     FROM Songs USE INDEX (songs_artist_key_time) JOIN Artists A on Songs.artist_id = A.artist_id
@@ -264,15 +279,20 @@ Genre_By_country AS (
     SELECT artist_mb
     FROM Genre USE INDEX (genre_artist_country) JOIN Input_Song_Region ON Genre.country_mb = Input_Song_Region.country_mb
 ),
+Songs_By_Danceability AS (
+    SELECT name_ as name, artist_id
+    FROM Songs USE INDEX (songs_artist_dance), Input_Song_Region
+    WHERE Songs.danceability >= Input_Song_Region.danceability - 0.1 # User defined similarity score
+      AND Songs.danceability <= Input_Song_Region.danceability + 0.1
+),
 Songs_Same_Danceability_Region AS (
-    SELECT DISTINCT Songs.name_
-    FROM Songs USE INDEX (songs_artist_dance)
-    JOIN Artists ON Songs.artist_id = Artists.artist_id JOIN Genre_By_country G on Artists.artist = G.artist_mb, Input_Song_Region
-    WHERE Songs.danceability >= Input_Song_Region.danceability - 0.1
-      AND Songs.danceability <= Input_Song_Region.danceability + 0.1),
+    SELECT DISTINCT name
+    FROM Songs_By_Danceability
+    JOIN Artists USE INDEX (artists_all_attr) ON Songs_By_Danceability.artist_id = Artists.artist_id JOIN Genre_By_country G on Artists.artist = G.artist_mb
+),
 Freq_Song_On_Chart AS (
     SELECT chart, region, title, COUNT(date_) as chart_appearances
-    FROM Charts JOIN Songs_Same_Danceability_Region ON Charts.title = Songs_Same_Danceability_Region.name_
+    FROM Charts USE INDEX (chart_all_attr) JOIN Songs_Same_Danceability_Region ON Charts.title = Songs_Same_Danceability_Region.name
     GROUP BY title, chart, region
     ORDER BY chart_appearances DESC
 )
@@ -280,29 +300,35 @@ SELECT chart, region, AVG(chart_appearances) as avg_appearances
 FROM Freq_Song_On_Chart
 GROUP BY chart, region;
 
-# Most successful albums. Success is defined by the number of times songs from that particular album appear
+# Top 5 most successful albums in a given region and chart. Success is defined by the number of times songs from that particular album appear
 # in top charts (HARD 4)
 
 WITH song_count AS (
-    SELECT title, artist, chart, region, COUNT(date_) as chart_appearances
+    SELECT title, artist, COUNT(date_) as chart_appearances
     FROM Charts USE INDEX (chart_all_attr)
-    GROUP BY title, chart, region
+    WHERE region = 'United States' AND chart = 'top200' #parameters to be defined by user
+    GROUP BY title
+),
+Album_year AS (
+    SELECT album_id, album, release_date
+    FROM Album_Info
+    WHERE SUBSTR(release_date, 1, 4) = '2017'  #user inputted
 ),
 Albums_Of_Chart_Songs AS (
-    SELECT song_count.title, song_count.artist, album, song_count.chart_appearances, song_count.region, song_count.chart
-    FROM Album_Info
-    JOIN Songs S USE INDEX (songs_album_artist) ON Album_Info.album_id = S.album_id
+    SELECT song_count.title, song_count.artist, album, release_date, song_count.chart_appearances
+    FROM Album_year
+    JOIN Songs S USE INDEX (songs_album_artist) ON Album_year.album_id = S.album_id
     JOIN Artists A USE INDEX (artists_all_attr) on S.artist_id = A.artist_id
     JOIN song_count on A.artist = song_count.artist AND S.name_ = song_count.title
 ),
 Freq_Song_And_Album_On_Chart AS (
-    SELECT album, artist, chart, region, SUM(chart_appearances) as album_chart_appearances
+    SELECT album, artist, release_date, SUM(chart_appearances) as album_chart_appearances
     FROM Albums_Of_Chart_Songs
-    GROUP BY album, chart, region
-    ORDER BY album_chart_appearances DESC
+    GROUP BY album
 )
 SELECT * FROM Freq_Song_And_Album_On_Chart
-GROUP BY chart, region ORDER BY album_chart_appearances DESC;
+ORDER BY album_chart_appearances DESC
+LIMIT 5;
 
 
 
