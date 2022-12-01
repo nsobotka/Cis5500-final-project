@@ -157,14 +157,11 @@ def addInKeys():
 def secondTry():
     col_names = ['title', 'rank', 'date', 'artist', 'url', 'region',
                 'chart', 'trend', 'streams']
-    charts = pd.read_csv('charts_processed1.csv', header=None, names=col_names, low_memory=False)
-    charts = charts.iloc[119000:,:]
-    charts.to_csv('charts_processed1-5.csv', index=False)
-    charts = pd.read_csv('charts_processed2.csv', header=None, names=col_names, low_memory=False)
-    charts = charts.iloc[119000:,:]
-    charts.to_csv('charts_processed2-5.csv', index=False)
-    charts = pd.read_csv('charts_processed3.csv', header=None, names=col_names, low_memory=False)
-    charts = charts.iloc[119000:,:]
-    charts.to_csv('charts_processed3-5.csv', index=False)
+    charts = pd.read_csv('charts_processed4.csv', header=None, names=col_names, low_memory=False)
+    charts = charts.iloc[300000:,:]
+    charts.to_csv('charts_processed4-5.csv', index=False)
+    charts = pd.read_csv('charts_processed5.csv', header=None, names=col_names, low_memory=False)
+    charts = charts.iloc[300000:,:]
+    charts.to_csv('charts_processed5-5.csv', index=False)
 
-# secondTry()
+secondTry()
