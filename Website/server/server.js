@@ -9,7 +9,7 @@ const config = require('./config.json')
 const app = express();
 
 // whitelist localhost 3000
-//app.use(cors({ credentials: true, origin: ['http://localhost:3000'] }));
+app.use(cors({ credentials: true, origin: ['http://localhost:3000'] }));
 
 // Route 1 - register as GET 
 app.get('/top_artist_count', routes.top_artist_count)
