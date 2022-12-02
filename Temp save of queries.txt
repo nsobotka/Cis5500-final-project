@@ -2,6 +2,7 @@ show databases;
 
 CREATE DATABASE Final_Project;
 USE Final_Project;
+SHOW TABLES;
 
 CREATE TABLE Genre
 (
@@ -77,26 +78,8 @@ CREATE TABLE Charts
 SELECT count(*)
 FROM Charts;
 
-# For a word cloud, what tags are the most popular by country
-WITH tags AS (
-    SELECT country_mb, tags_lastfm, COUNT(tags_lastfm) as popularity
-    FROM Genre
-    GROUP BY tags_lastfm
-    ORDER BY popularity DESC
-)
-SELECT *
-FROM tags
-GROUP BY country_mb;
 
-
-# Most popular artist from each country by number of listeners
-WITH Popular_Artists_By_Country AS (
-    SELECT Genre.country_mb, Genre.artist_mb, Genre.listeners_lastfm as num_listeners
-    FROM Genre USE INDEX (genre_country_artist_listeners)
-    GROUP BY country_mb, num_listeners
-    ORDER BY num_listeners DESC
-)
-SELECT * FROM Popular_Artists_By_Country GROUP BY country_mb;
+# INDEXES:
 
 CREATE INDEX album_id_name_date
 ON Album_Info(album_id, album, release_date);
@@ -112,6 +95,9 @@ ON Genre(artist_mb, country_mb);
 
 CREATE INDEX genre_artist
 ON Genre(artist_mb);
+
+CREATE INDEX genre_country_tags
+ON Genre(country_mb, tags_lastfm);
 
 CREATE INDEX songs_album_artist
 ON Songs (album_id);
@@ -149,37 +135,57 @@ ON Charts (date_, artist, region);
 CREATE INDEX chart_date_region
 ON Charts (date_, region);
 
+
+
+#QUERIES: 
+
+# QUERY 1: 
+# For a word cloud, what tags are the most popular by country
+WITH tags AS (
+    SELECT country_mb, tags_lastfm, COUNT(tags_lastfm) as popularity
+    FROM Genre USE INDEX (genre_country_tags)
+    GROUP BY tags_lastfm, country_mb
+    ORDER BY popularity DESC
+)
+SELECT *
+FROM tags
+GROUP BY country_mb;
+
+
+# QUERY 2:
+# Most popular artist from each country by number of listeners
+WITH Popular_Artists_By_Country AS (
+    SELECT Genre.country_mb, Genre.artist_mb, Genre.listeners_lastfm as num_listeners
+    FROM Genre USE INDEX (genre_country_artist_listeners)
+    GROUP BY country_mb, num_listeners
+    ORDER BY num_listeners DESC
+)
+SELECT * FROM Popular_Artists_By_Country GROUP BY country_mb;
+
+
+# QUERY 3:
 # Finds the albums of the most popular artists, where popularity is measured by the number songs that ever made the top charts (HARD 1)
 WITH filtered_albums AS (
     SELECT album, album_id, release_date
     FROM Album_Info USE INDEX (album_id_name_date)
     WHERE SUBSTR(Album_Info.release_date, 1, 4) = '2020' # We can pass the year in via our website implementation
 ),
-Most_Popular_Artists AS (
-    SELECT Artists.artist_id, Artists.artist, title
-    FROM Artists JOIN Charts C USE INDEX (chart_artists) on Artists.artist = C.artist
-    GROUP BY Artists.artist_id, C.title
+filtered_charts AS (
+    SELECT artist, title
+    FROM Charts USE INDEX (chart_all_attr)
+    WHERE region = 'United States' #User defined
 ),
-numTimes AS (
-    SELECT artist_id, artist, count(artist) AS numTimes
-    FROM Most_Popular_Artists
-    GROUP BY artist_id
+Most_Popular_Artists AS (
+    SELECT Artists.artist_id, Artists.artist, title, count(Artists.artist) as num
+    FROM Artists JOIN filtered_charts C on Artists.artist = C.artist
+    GROUP BY Artists.artist_id, C.title
 )
 SELECT DISTINCT artist, album, release_date
 FROM filtered_albums JOIN Songs S USE INDEX (songs_album_artist) on filtered_albums.album_id = S.album_id
-                     JOIN numTimes ON numTimes.artist_id = S.artist_id;
+                     JOIN Most_Popular_Artists ON Most_Popular_Artists.artist_id = S.artist_id;
 
-# Finds the albums of the most popular artists, where popularity is measured by the number of chart songs (HARD 1)
-# WITH Most_Popular_Artists AS (
-#     SELECT Artists.artist_id, Artists.artist, COUNT(Artists.artist) AS num_chart_songs
-#     FROM Artists JOIN Charts C on Artists.artist = C.artist
-#     ORDER BY num_chart_songs DESC
-# )
-# SELECT * FROM Most_Popular_Artists;
-# SELECT DISTINCT artist, album, release_date
-# FROM Album_Info JOIN Songs S on Album_Info.album_id = S.album_id JOIN Most_Popular_Artists ON Most_Popular_Artists.artist_id
-# WHERE SUBSTR(Album_Info.release_date, 1, 4) = '2020'; # We can pass the year in via our website implementation
 
+# QUERY 4:
 # Given a dial, a user interacting with the website can find songs with desired attributed scores for danceability, energy, etc.
 # Note: the ranges below are user determined, we hardcoded them for demonstration purposes
 WITH filtered_songs AS (
@@ -193,6 +199,8 @@ WITH filtered_songs AS (
 SELECT filtered_songs.name_, A.artist, danceability, energy, speechiness, loudness
 FROM filtered_songs JOIN Artists A USE INDEX (artists_all_attr) on filtered_songs.artist_id = A.artist_id;
 
+
+# QUERY 5:
 # Find artists that are related to an inputted artist's genres
 WITH Bruno_Mars_Genres AS (
     SELECT artist_mb, tags_lastfm
@@ -205,6 +213,8 @@ WHERE Genre.tags_lastfm LIKE CONCAT('%', SUBSTRING_INDEX(Bruno_Mars_Genres.tags_
       Genre.artist_mb != Bruno_Mars_Genres.artist_mb
 ORDER BY listeners_lastfm DESC;
 
+
+# QUERY 6:
 # Find songs that are related to a user inputted song (HARD 2)
 # The following query will not be hardcoded in the React implementation
 
@@ -242,6 +252,8 @@ WITH Input_Song AS (
 )
 SELECT * FROM Similar_Artists_Songs GROUP BY(artist);
 
+
+# QUERY 7:
 # Get the 5 most popular artists with some user inputted date and region.
 SELECT date_ as date, region, artist, COUNT(artist) AS artist_freq
 FROM Charts USE INDEX (chart_all_but_title)
@@ -251,6 +263,8 @@ GROUP BY artist
 ORDER BY artist_freq DESC
 LIMIT 5;
 
+
+# QUERY 8:
 # Find songs that are in the same key and time signature as a user inputted song
 WITH Input_Song AS (
     SELECT Songs.artist_id, Songs.key_, Songs.time_signature
@@ -262,6 +276,8 @@ SELECT DISTINCT name_, Artists.artist, Songs.key_, Songs.time_signature
 FROM Songs USE INDEX (songs_artist_key_time) JOIN Artists ON Songs.artist_id = Artists.artist_id, Input_Song
 WHERE Songs.key_ = Input_Song.key_ AND Songs.time_signature = Input_Song.time_signature;
 
+
+# QUERY 9:
 # Given a user inputted song, first find songs of similar danceability and from artists of the same country.
 # Then, find the average number of times these found songs appear in the same top chart (determined by region and chart name) (HARD 3)
 # essentially find how popular a type of song is
@@ -300,6 +316,9 @@ SELECT chart, region, AVG(chart_appearances) as avg_appearances
 FROM Freq_Song_On_Chart
 GROUP BY chart, region;
 
+
+
+# QUERY 10:
 # Top 5 most successful albums in a given region and chart. Success is defined by the number of times songs from that particular album appear
 # in top charts (HARD 4)
 
@@ -307,7 +326,7 @@ WITH song_count AS (
     SELECT title, artist, COUNT(date_) as chart_appearances
     FROM Charts USE INDEX (chart_all_attr)
     WHERE region = 'United States' AND chart = 'top200' #parameters to be defined by user
-    GROUP BY title
+    GROUP BY title, artist
 ),
 Album_year AS (
     SELECT album_id, album, release_date
@@ -329,16 +348,6 @@ Freq_Song_And_Album_On_Chart AS (
 SELECT * FROM Freq_Song_And_Album_On_Chart
 ORDER BY album_chart_appearances DESC
 LIMIT 5;
-
-
-
-
-
-
-
-
-
-
 
 
 
