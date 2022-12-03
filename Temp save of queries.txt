@@ -137,9 +137,9 @@ ON Charts (date_, region);
 
 
 
-#QUERIES: 
+#QUERIES:
 
-# QUERY 1: 
+# QUERY 1:
 # For a word cloud, what tags are the most popular by country
 WITH tags AS (
     SELECT country_mb, tags_lastfm, COUNT(tags_lastfm) as popularity
@@ -205,7 +205,7 @@ FROM filtered_songs JOIN Artists A USE INDEX (artists_all_attr) on filtered_song
 WITH Bruno_Mars_Genres AS (
     SELECT artist_mb, tags_lastfm
     FROM Genre USE INDEX (genre_artist_tags)
-    WHERE artist_mb = 'Bruno Mars'
+    WHERE artist_mb = 'Kanye'
 )
 SELECT Genre.artist_mb, Genre.tags_lastfm, listeners_lastfm
 FROM Genre USE INDEX (genre_artist_tags), Bruno_Mars_Genres
@@ -222,7 +222,7 @@ ORDER BY listeners_lastfm DESC;
 WITH Input_Song AS (
     SELECT Songs.name_, A.artist, Songs.artist_id
     FROM Songs JOIN Artists A on Songs.artist_id = A.artist_id
-    WHERE A.artist = 'Coldplay'
+    WHERE A.artist = 'Taylor Swift'
     LIMIT 1
 )
 
@@ -268,13 +268,15 @@ LIMIT 5;
 # Find songs that are in the same key and time signature as a user inputted song
 WITH Input_Song AS (
     SELECT Songs.artist_id, Songs.key_, Songs.time_signature
-    FROM Songs USE INDEX (songs_artist_key_time) JOIN Artists A on Songs.artist_id = A.artist_id
-    WHERE A.artist = 'Coldplay' # user inputted
-    LIMIT 1
+                        FROM Songs USE INDEX (songs_artist_key_time)
+                        WHERE name_ = 'Hello'
+                        LIMIT 1
 )
-SELECT DISTINCT name_, Artists.artist, Songs.key_, Songs.time_signature
+SELECT DISTINCT Songs.name_, Artists.artist, Songs.key_, Songs.time_signature
 FROM Songs USE INDEX (songs_artist_key_time) JOIN Artists ON Songs.artist_id = Artists.artist_id, Input_Song
-WHERE Songs.key_ = Input_Song.key_ AND Songs.time_signature = Input_Song.time_signature;
+WHERE Songs.key_ = Input_Song.key_ AND Songs.time_signature = Input_Song.time_signature
+AND SUBSTR(Songs.name_, 1, 1) REGEXP '^[A-z]+$'
+AND SUBSTR(Artists.artist, 1, 1) REGEXP '^[A-z]+$';
 
 
 # QUERY 9:

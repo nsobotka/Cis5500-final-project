@@ -15,6 +15,7 @@ app.use(cors({ credentials: true, origin: ['http://localhost:3000'] }));
 // app.get('/top_artist_count', routes.top_artist_count)
 
 app.get('/artists', routes.get_similar_artists)
+app.get('/songs', routes.get_song_key_time)
 
 app.listen(config.server_port, () => {
     console.log(`Server running at http://${config.server_host}:${config.server_port}/`);
