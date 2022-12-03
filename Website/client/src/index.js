@@ -7,6 +7,7 @@ import {
 } from 'react-router-dom';
 
 import HomePage from './pages/HomePage';
+import ArtistsPage from './pages/ArtistsPage';
 import 'antd/dist/antd.css';
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -21,6 +22,11 @@ ReactDOM.render(
 							render={() => (
 								<HomePage />
 							)}/>
+        <Route exact
+            path="/artists"
+            render={() => (
+              <ArtistsPage />
+            )} />
       </Switch>
     </Router>
   </div>,

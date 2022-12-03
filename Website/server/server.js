@@ -12,8 +12,9 @@ const app = express();
 app.use(cors({ credentials: true, origin: ['http://localhost:3000'] }));
 
 // Route 1 - register as GET 
-app.get('/top_artist_count', routes.top_artist_count)
+// app.get('/top_artist_count', routes.top_artist_count)
 
+app.get('/artists', routes.get_similar_artists)
 
 app.listen(config.server_port, () => {
     console.log(`Server running at http://${config.server_host}:${config.server_port}/`);
