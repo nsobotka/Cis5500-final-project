@@ -4,7 +4,15 @@ const getSimilarArtists = async (artist_mb, page, pagesize) => {
     var res = await fetch(`http://${config.server_host}:${config.server_port}/artists?artist_mb=${artist_mb}&page=${page}&pagesize=${pagesize}`, {
         method: 'GET',
     })
-    console.log('Result')
+    console.log('fetcher: getSimilarArtists')
+    return res.json()
+}
+
+const getArtists = async (artist_mb, page, pagesize) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/artists?artist_mb=${artist_mb}&page=${page}&pagesize=${pagesize}`, {
+        method: 'GET',
+    })
+    console.log('fetcher: getArtists')
     return res.json()
 }
 
