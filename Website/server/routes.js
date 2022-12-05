@@ -257,10 +257,51 @@ async function get_song_key_time(req, res) {
     }
 }
 
+//Query 10
+async function albums_region_chart(req, res) {
+    const region = req.query.region ? req.query.region : 'United States'
+    const chart = req.query.chart ? req.query.chart : 'top200'
+    connection.query(`WITH song_count AS (
+        SELECT title, artist, COUNT(date_) as chart_appearances
+        FROM Charts USE INDEX (chart_all_attr)
+        WHERE region = '${region}' AND chart = '${chart}'
+        GROUP BY title, artist
+    ),
+    Album_year AS (
+        SELECT album_id, album, release_date
+        FROM Album_Info
+        WHERE SUBSTR(release_date, 1, 4) = '2017'  #user inputted
+    ),
+    Albums_Of_Chart_Songs AS (
+        SELECT song_count.title, song_count.artist, album, release_date, song_count.chart_appearances
+        FROM Album_year
+        JOIN Songs S USE INDEX (songs_album_artist) ON Album_year.album_id = S.album_id
+        JOIN Artists A USE INDEX (artists_all_attr) on S.artist_id = A.artist_id
+        JOIN song_count on A.artist = song_count.artist AND S.name_ = song_count.title
+    ),
+    Freq_Song_And_Album_On_Chart AS (
+        SELECT album, artist, release_date, SUM(chart_appearances) as album_chart_appearances
+        FROM Albums_Of_Chart_Songs
+        GROUP BY album
+    )
+    SELECT * FROM Freq_Song_And_Album_On_Chart
+    ORDER BY album_chart_appearances DESC
+    LIMIT 5;`, function (error, results, fields) {
+
+    if (error) {
+        console.log(error)
+        res.json({ error: error })
+    } else if (results) {
+        res.json({ results: results })
+    }
+    });
+}
+
 module.exports = {
     get_similar_artists,
     get_song_key_time,
     get_song_attribute_range,
     get_related_songs,
     top_year_albums,
+    albums_region_chart,
 }

@@ -48,10 +48,19 @@ const getTopYearAlbums = async (year) => {
     return res.json()
 }
 
+const getAlbumsRegionChart = async(region, chart) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/albums_region_chart?region=${region}&chart=${chart}`, {
+        method: 'GET',
+    })
+    console.log('fetcher: getAlbumsRegionChart')
+    return res.json()
+}
+
 export {
     getSimilarArtists,
     getSongKeyTime,
     getSongAttributeRange,
     getRelatedSongs,
-    getTopYearAlbums
+    getTopYearAlbums,
+    getAlbumsRegionChart
 }
