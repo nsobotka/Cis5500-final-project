@@ -138,7 +138,43 @@ async function get_song_attribute_range(req, res) {
     });
 }
 
-//Query 6
+async function get_related_songs(req, res) {
+    const input_song = req.query.input_song ? req.query.input_song : 'Hymn for the Weekend'
+    console.log(input_song)
+    connection.query(`WITH Input_Song AS (
+        SELECT Songs.name_, A.artist, Songs.artist_id
+        FROM Songs JOIN Artists A on Songs.artist_id = A.artist_id
+        WHERE Songs.name_ = '${input_song}'
+        LIMIT 1
+    ), Input_Song_Genre AS (
+        SELECT Genre.artist_mb, SUBSTRING_INDEX(tags_lastfm, ';', 2) as genre_tags
+        FROM Genre JOIN Input_Song ON Genre.artist_mb = artist
+        LIMIT 1
+    ), Similar_Artists AS (
+        SELECT Genre.artist_mb, Genre.tags_lastfm, listeners_lastfm
+        FROM Genre, Input_Song_Genre
+        WHERE Genre.tags_lastfm LIKE CONCAT('%', Input_Song_Genre.genre_tags, '%') AND
+          Genre.artist_mb != Input_Song_Genre.artist_mb
+        ORDER BY listeners_lastfm DESC
+        LIMIT 5 # this parameter can also be user determined
+    ), Similar_Artists_Songs AS (
+        SELECT title, artist, COUNT(title) as chart_freq
+        FROM Charts JOIN Similar_Artists ON Charts.artist = Similar_Artists.artist_mb
+        GROUP BY title, artist
+        ORDER BY chart_freq DESC
+    )
+    SELECT * FROM Similar_Artists_Songs GROUP BY(artist);`, function (error, results, fields) {
+
+    if (error) {
+        console.log(error)
+        res.json({ error: error })
+    } else if (results) {
+        res.json({ results: results })
+    }
+    });
+}
+
+//Query 8
 async function get_song_key_time(req, res) {
     const input_song = req.query.input_song ? req.query.input_song : 'Hymn for the Weekend'
     //handle /top_artist_count query
@@ -193,4 +229,5 @@ module.exports = {
     get_similar_artists,
     get_song_key_time,
     get_song_attribute_range,
+    get_related_songs,
 }

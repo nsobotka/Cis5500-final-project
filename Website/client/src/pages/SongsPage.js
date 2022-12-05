@@ -11,36 +11,11 @@ import {
     Rate
 } from 'antd'
 import MenuBar from '../components/MenuBar';
-import { getSongKeyTime, getSongAttributeRange } from '../fetcher'
+import { getSongKeyTime, getSongAttributeRange, getRelatedSongs } from '../fetcher'
 
 const { Column, ColumnGroup } = Table;
 const { Option } = Select;
 
-
-const songColumns = [
-    {
-        title: 'Name',
-        dataIndex: 'name_',
-        key: 'name_',
-        sorter: (a, b) => a.name_.localeCompare(b.name_)
-    },
-    {
-        title: 'Artist',
-        dataIndex: 'artist',
-        key: 'artist',
-        sorter: (a, b) => a.artist_.localeCompare(b.artist)
-    },
-    {
-        title: 'Key',
-        dataIndex: 'key_',
-        key: 'key_',
-    },
-    {
-        title: 'Time Signature',
-        dataIndex: 'time_signature',
-        key: 'time_signature',
-    },
-];
 
 class SongsPage extends React.Component {
 
@@ -51,6 +26,7 @@ class SongsPage extends React.Component {
             songQuery: '',
             similarSongKeyTime: [],
             songAttributeRange: [],
+            relatedSongs: [],
             minDanceability: 0,
             maxDanceability: 1,
             minEnergy: 0,
@@ -75,8 +51,11 @@ class SongsPage extends React.Component {
 
     updateSearchResults() {
         getSongKeyTime(this.state.songQuery, null, null).then(res => {
-            this.setState({ similarSongKeyTime: res.results })
-        })
+            this.setState({ similarSongKeyTime: res.results });
+        });
+        getRelatedSongs(this.state.songQuery).then(res => {
+            this.setState({ relatedSongs : res.results});
+        });
     }
 
     updateRangeSearchResults() {
@@ -109,7 +88,11 @@ class SongsPage extends React.Component {
     componentDidMount() {
         getSongKeyTime(this.state.songQuery, null, null).then(res => {
             this.setState({ similarSongKeyTime: res.results })
-        })
+        });
+        getRelatedSongs(this.state.songQuery).then(res => {
+            this.setState({ relatedSongs : res.results});
+            console.log(this.state.relatedSongs);
+        });
         getSongAttributeRange(this.state.minDanceability, this.state.maxDanceability, this.state.minEnergy, this.state.maxEnergy,
             this.state.minLoudness, this.state.maxLoudness, this.state.minSpeechiness, this.state.maxSpeechiness).then(res => {
                 this.setState({songAttributeRange: res.results });
@@ -135,7 +118,7 @@ class SongsPage extends React.Component {
                 </Form>
                 <Divider />
                 <div style={{ width: '70vw', margin: '0 auto', marginTop: '5vh' }}>
-                    <h3>Similar Songs</h3>
+                    <h3>Songs with Similar Key and Time Signatures</h3>
                     <Table
                         dataSource={this.state.similarSongKeyTime} pagination={{ pageSizeOptions: [5, 10], defaultPageSize: 5, showQuickJumper: true }}>
                         <Column title="Name" dataIndex="name_" key="name_" sorter={(a, b) => a.name_.localeCompare(b.name_)} />
@@ -143,6 +126,16 @@ class SongsPage extends React.Component {
                         <Column title="Key" dataIndex="key_" key="key_" />
                         <Column title="Time Signature" dataIndex="time_signature" key="time_signature" />
 
+                    </Table>
+                </div>
+                <Divider />
+                <div style={{ width: '70vw', margin: '0 auto', marginTop: '5vh' }}>
+                    <h3>Related Songs</h3>
+                    <Table
+                        dataSource={this.state.relatedSongs} pagination={{ pageSizeOptions: [5, 10], defaultPageSize: 5, showQuickJumper: true }}>
+                        <Column title="Title" dataIndex="title" key="title" sorter={(a, b) => a.name_.localeCompare(b.name_)} />
+                        <Column title="Artist" dataIndex="artist" key="artist" sorter={(a, b) => a.artist.localeCompare(b.artist)} />
+                        <Column title="Chart Frequency" dataIndex="chart_freq" key="chart_freq" sortOrder={(a,b) => a.chart_freq - b.chart_freq} />
                     </Table>
                 </div>
                 <Divider />
@@ -174,7 +167,7 @@ class SongsPage extends React.Component {
                     </Row>
                     <Divider />
                     <div style={{ width: '70vw', margin: '0 auto', marginTop: '5vh' }}>
-                        <h3>Songs within ranges</h3>
+                        <h3>Songs within specified attribute ranges</h3>
                         <Table
                             dataSource={this.state.songAttributeRange} pagination={{ pageSizeOptions: [5, 10], defaultPageSize: 5, showQuickJumper: true }}>
                             <Column title="Name" dataIndex="name_" key="name_" sorter={(a, b) => a.name_.localeCompare(b.name_)} />
