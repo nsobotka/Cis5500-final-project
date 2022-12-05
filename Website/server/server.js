@@ -15,6 +15,7 @@ app.use(cors({ credentials: true, origin: ['http://localhost:3000'] }));
 // app.get('/top_artist_count', routes.top_artist_count)
 
 app.get('/artists', routes.get_similar_artists)
+app.get('/artists_from', routes.artists_from)
 app.get('/songs', routes.get_song_key_time)
 app.get('/songs_range', routes.get_song_attribute_range)
 app.get('/related_songs', routes.get_related_songs)
