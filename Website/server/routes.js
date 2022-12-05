@@ -108,6 +108,37 @@ async function get_similar_artists(req, res) {
     }
 }
 
+//Query 4
+async function get_song_attribute_range(req, res) {
+    const min_danceability = req.query.min_danceability ? req.query.min_danceability : 0.0;
+    const max_danceability = req.query.max_danceability ? req.query.max_danceability : 1.0;
+    const min_energy = req.query.min_energy ? req.query.min_energy : 0.0;
+    const max_energy = req.query.max_energy ? req.query.max_energy : 1.0;
+    const min_loudness = req.query.min_loudness ? req.query.min_loudness : 0.0;
+    const max_loudness = req.query.max_loudness ? req.query.max_loudness : 1.0;
+    const min_speechiness = req.query.min_speechiness ? req.query.min_speechiness : 0.0;
+    const max_speechiness = req.query.max_speechiness ? req.query.max_speechiness : 1.0;
+    connection.query(`WITH filtered_songs AS (
+        SELECT name_, artist_id, danceability, energy, speechiness, loudness
+        FROM Songs USE INDEX (songs_all_attr)
+        WHERE danceability >= ${min_danceability} AND danceability <= ${max_danceability} AND
+          energy >= ${min_energy} AND energy <= ${max_energy} AND
+          loudness >= ${min_loudness} AND loudness <= ${max_loudness} AND
+          speechiness >= ${min_speechiness} AND speechiness <= ${max_speechiness}
+    )
+    SELECT filtered_songs.name_, A.artist, danceability, energy, speechiness, loudness
+    FROM filtered_songs JOIN Artists A USE INDEX (artists_all_attr) on filtered_songs.artist_id = A.artist_id;`, function (error, results, fields) {
+
+    if (error) {
+        console.log(error)
+        res.json({ error: error })
+    } else if (results) {
+        res.json({ results: results })
+    }
+    });
+}
+
+//Query 6
 async function get_song_key_time(req, res) {
     const input_song = req.query.input_song ? req.query.input_song : 'Hymn for the Weekend'
     //handle /top_artist_count query
@@ -161,4 +192,5 @@ async function get_song_key_time(req, res) {
 module.exports = {
     get_similar_artists,
     get_song_key_time,
+    get_song_attribute_range,
 }

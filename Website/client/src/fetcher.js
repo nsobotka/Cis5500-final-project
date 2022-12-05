@@ -16,6 +16,14 @@ const getArtists = async (artist_mb, page, pagesize) => {
     return res.json()
 }
 
+const getSongAttributeRange = async (minDanceability, maxDanceability, minEnergy, maxEnergy, minLoudness, maxLoudness, minSpeechiness, maxSpeechiness) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/songs_range?min_danceability=${minDanceability}&max_danceability=${maxDanceability}&min_energy=${minEnergy}&max_energy=${maxEnergy}&min_loudness=${minLoudness}&max_loudness=${maxLoudness}&min_speechiness=${minSpeechiness}&max_speechiness=${maxSpeechiness}`, {
+        method: 'GET',
+    })
+    console.log('fetcher: getSongAttributeRange')
+    return res.json()
+};
+
 const getSongKeyTime = async (input_song, page, pagesize) => {
     var res = await fetch(`http://${config.server_host}:${config.server_port}/songs?input_song=${input_song}&page=${page}&pagesize=${pagesize}`, {
         method: 'GET',
@@ -26,5 +34,6 @@ const getSongKeyTime = async (input_song, page, pagesize) => {
 
 export {
     getSimilarArtists,
-    getSongKeyTime
+    getSongKeyTime,
+    getSongAttributeRange
 }
