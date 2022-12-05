@@ -11,42 +11,12 @@ import {
   Rate
 } from 'antd'
 
-import { getSimilarArtists, getArtistsFrom } from "../fetcher";
+import { getArtistsFrom, getTopArtistsInRegion } from "../fetcher";
 import MenuBar from "../components/MenuBar";
 const { Column, ColumnGroup } = Table;
 const { Option } = Select;
 
-const artistColumns = [
-  {
-    title: "Artist",
-    dataIndex: "artist_mb",
-    key: "artist_mb",
-    sorter: (a, b) => a.region.localeCompare(b.region),
-  },
-  {
-    title: "Tags",
-    dataIndex: "tags_lastfm",
-    key: "tags_lastfm",
-  },
-  {
-    title: "Listeners",
-    dataIndex: "listeners_lastfm",
-    key: "listeners_lastfm",
-    sorter: (a, b) => a.get_similar_artists - b.get_similar_artists,
-  },
-];
-
 class HomePage extends React.Component {
-  // constructor(props) {
-  //   super(props)
-
-  //   this.state = {
-  //     topArtistResults: [],
-  //     matchesPageNumber: 1,
-  //     matchesPageSize: 10,
-  //     pagination: null
-  //   }
-  // }
 
   constructor(props) {
     super(props);
@@ -54,9 +24,10 @@ class HomePage extends React.Component {
     this.state = {
       countryQuery: "",
       dateQuery: "",
+      top5InResults: [],
       artistsFromResults: [],
     };
-    this.updateArtistsFromResults = this.updateArtistsFromResults.bind(this);
+    this.updateTop5InResults = this.updateTop5InResults.bind(this);
     this.handleDateQueryChange = this.handleDateQueryChange.bind(this);
     this.handleCountryQueryChange = this.handleCountryQueryChange.bind(this);
   }
@@ -69,14 +40,16 @@ class HomePage extends React.Component {
     this.setState({ countryQuery: event.target.value });
   }
 
-  updateArtistsFromResults() {
-    // getArtistsFrom(this.state.countryQuery, this.state.dateQuery, null, null).then((res) => {
-    getArtistsFrom(null, null, null, null).then((res) => {
-      this.setState({ artistsFromResults: res.results });
+  updateTop5InResults() {
+    getTopArtistsInRegion(this.state.countryQuery, this.state.dateQuery).then((res) => {
+      this.setState({ top5InResults: res.results });
     });
   }
 
   componentDidMount() {
+    getTopArtistsInRegion(this.state.countryQuery, this.state.dateQuery).then((res) => {
+      this.setState({ top5InResults: res.results });
+    });
     getArtistsFrom(null, null, null, null).then((res) => {
       this.setState({ artistsFromResults: res.results });
     });
@@ -88,42 +61,7 @@ class HomePage extends React.Component {
         <MenuBar />
         <div style={{ width: "70vw", margin: "0 auto", marginTop: "5vh" }}>
 
-          <Form style={{ width: "80vw", margin: "0 auto", marginTop: "5vh" }}>
-            <Row>
-              <Col flex={2}>
-                <FormGroup style={{ width: "20vw", margin: "0 auto" }}>
-                  <label>Country</label>
-                  <FormInput
-                    placeholder="Country"
-                    value={this.state.countryQuery}
-                    onChange={this.handleCountryQueryChange}
-                    />
-                </FormGroup>
-              </Col>
-              <Col flex={2}>
-                <FormGroup style={{ width: "20vw", margin: "0 auto" }}>
-                  <label>Year</label>
-                  <FormInput
-                    placeholder="Year"
-                    value={this.state.dateQuery}
-                    onChange={this.handleDateQueryChange}
-                    />
-                </FormGroup>
-              </Col>
-              <Col flex={2}>
-                <FormGroup style={{ width: "10vw" }}>
-                  <Button
-                    style={{ marginTop: "4vh" }}
-                    onClick={this.updateArtistsFromResults}
-                    >
-                    Search
-                  </Button>
-                </FormGroup>
-              </Col>
-            </Row>
-          </Form>
-
-          <h3>Most popular artists from selected country</h3>
+          <h3>Most popular artists</h3>
           
           <Table
             // return {
@@ -137,27 +75,56 @@ class HomePage extends React.Component {
             }}
           >
             <Column
-              title="Artist"
-              dataIndex="artist_mb"
-              key="artist_mb"
-              sorter={(a, b) => a.Artist.localeCompare(b.Artist)}
+              title="Country"
+              dataIndex="country_mb"
+              key="country_mb"
+              sorter={(a, b) => a.country_mb.localeCompare(b.country_mb)}
             />
-            <Column title="Tags" dataIndex="tags_lastfm" key="Tags" />
+            <Column title="Artist" dataIndex="artist_mb" key="artist_mb" sorter={(a, b) => a.artist_mb.localeCompare(b.artist_mb)} />
             <Column
               title="Listeners"
-              dataIndex="listeners_lastfm"
-              key="listeners_lastfm"
-              sorter={(a, b) => a.Listeners - b.Listeners}
+              dataIndex="num_listeners"
+              key="num_listeners"
+              sorter={(a, b) => a.num_listeners - b.num_listeners}
             />
           </Table>
 
-          <h3>Most popular artists in selected country</h3>
+          <Form style={{ width: "80vw", margin: "0 auto", marginTop: "5vh" }}>
+            <Row>
+              <Col flex={2}>
+                <FormGroup style={{ width: "20vw", margin: "0 auto" }}>
+                  <label>Country</label>
+                  <FormInput
+                    placeholder="United States"
+                    value={this.state.countryQuery}
+                    onChange={this.handleCountryQueryChange}
+                  />
+                </FormGroup>
+              </Col>
+              <Col flex={2}>
+                <FormGroup style={{ width: "20vw", margin: "0 auto" }}>
+                  <label>Year</label>
+                  <FormInput
+                    placeholder="2020"
+                    value={this.state.dateQuery}
+                    onChange={this.handleDateQueryChange}
+                  />
+                </FormGroup>
+              </Col>
+              <Col flex={2}>
+                <Col flex={2}><FormGroup style={{ width: '10vw' }}>
+                  <Button style={{ marginTop: '4vh' }} onClick={this.updateTop5InResults}>Search</Button>
+                </FormGroup></Col>
+              </Col>
+            </Row>
+          </Form>
+          <h3>Top 5 Most popular artists</h3>
 
           <Table
             // return {
             //   onClick: event => { this.goToMatch(record.MatchId) }, // clicking a row takes the user to a detailed view of the match in the /matches page using the MatchId parameter
             // };
-            dataSource={this.state.artistsFromResults}
+            dataSource={this.state.top5InResults}
             pagination={{
               pageSizeOptions: [5, 10],
               defaultPageSize: 5,
@@ -166,16 +133,15 @@ class HomePage extends React.Component {
           >
             <Column
               title="Artist"
-              dataIndex="artist_mb"
-              key="artist_mb"
-              sorter={(a, b) => a.Artist.localeCompare(b.Artist)}
+              dataIndex="artist"
+              key="artist"
+              sorter={(a, b) => a.artist.localeCompare(b.artist)}
             />
-            <Column title="Tags" dataIndex="tags_lastfm" key="Tags" />
             <Column
-              title="Listeners"
-              dataIndex="listeners_lastfm"
-              key="listeners_lastfm"
-              sorter={(a, b) => a.Listeners - b.Listeners}
+              title="Chart Appearances"
+              dataIndex="artist_freq"
+              key="artist_freq"
+              sorter={(a, b) => a.artist_freq - b.artist_freq}
             />
           </Table>
 

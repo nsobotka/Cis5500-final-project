@@ -23,13 +23,17 @@ class AlbumPage extends React.Component {
 
         this.state = {
             year: 2020,
+            region1: 'United States',
             topYearAlbums: [],
             regionChartAlbums: [],
             region: 'United States',
-            chart: 'top200'
+            chart: 'top200',
+            year2: 2017,
         }
 
         this.handleYearChange = this.handleYearChange.bind(this)
+        this.handleYear2Change = this.handleYear2Change.bind(this)
+        this.handleRegion1Change = this.handleRegion1Change.bind(this)
         this.updateYearResults = this.updateYearResults.bind(this)
         this.handleRegionChange = this.handleRegionChange.bind(this)
         this.updateRegionChartResults = this.updateRegionChartResults.bind(this)
@@ -39,24 +43,30 @@ class AlbumPage extends React.Component {
     handleYearChange(value) {
         this.setState({year: value[0]});
     }
+    handleYear2Change(value) {
+        this.setState({ year2: value[0] });
+    }
+    handleRegion1Change(event) {
+        this.setState({ region1: event.target.value })
+    }
 
     updateYearResults() {
-        getTopYearAlbums(this.state.year).then(res => {
+        getTopYearAlbums(this.state.year, this.state.region1).then(res => {
             this.setState({topYearAlbums: res.results});
         });
     }
 
     updateRegionChartResults() {
-        getAlbumsRegionChart(this.state.region, this.state.chart).then(res => {
+        getAlbumsRegionChart(this.state.region, this.state.chart, this.state.year2).then(res => {
             this.setState({regionChartAlbums: res.results});
         });
     }
 
     componentDidMount() {
-        getTopYearAlbums(this.state.year).then(res => {
+        getTopYearAlbums(this.state.year, this.state.region1).then(res => {
             this.setState({topYearAlbums: res.results});
         });
-        getAlbumsRegionChart(this.state.region, this.state.chart).then(res => {
+        getAlbumsRegionChart(this.state.region, this.state.chart, this.state.year2).then(res => {
             this.setState({regionChartAlbums: res.results});
         });
     }
@@ -79,6 +89,10 @@ class AlbumPage extends React.Component {
                             <label>Year</label>
                             <Slider range defaultValue={[2020]} min={1970} max={2020} step={1} onChange={this.handleYearChange} />
                         </FormGroup></Col>
+                        <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
+                            <label>Region</label>
+                            <FormInput placeholder="Region" value={this.state.region1} onChange={this.handleRegion1Change} />
+                        </FormGroup></Col>
                         <Col flex={2}><FormGroup style={{ width: '10vw' }}>
                             <Button style={{ marginTop: '4vh' }} onClick={this.updateYearResults}>Search</Button>
                         </FormGroup></Col>
@@ -86,7 +100,7 @@ class AlbumPage extends React.Component {
                 </Form>
                 <Divider />
                 <div style={{ width: '70vw', margin: '0 auto', marginTop: '5vh' }}>
-                    <h3>Top Artist Albums of the Year</h3>
+                    <h3>Albums from the most popular artists of the year</h3>
                     <Table
                         dataSource={this.state.topYearAlbums} pagination={{ pageSizeOptions: [5, 10], defaultPageSize: 5, showQuickJumper: true }}>
                         <Column title="Artist" dataIndex="artist" key="artist" sorter={(a, b) => a.artist.localeCompare(b.artist)} />
@@ -97,6 +111,10 @@ class AlbumPage extends React.Component {
                 <Divider />
                 <Form style={{ width: '80vw', margin: '0 auto', marginTop: '5vh' }}>
                     <Row>
+                        <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
+                            <label>Year</label>
+                            <Slider range defaultValue={[2017]} min={1970} max={2020} step={1} onChange={this.handleYear2Change} />
+                        </FormGroup></Col>
                         <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
                             <label>Region</label>
                             <FormInput placeholder="Region" value={this.state.region} onChange={this.handleRegionChange} />

@@ -24,6 +24,7 @@ class SongsPage extends React.Component {
 
         this.state = {
             songQuery: '',
+            artistQuery: '',
             similarSongKeyTime: [],
             songAttributeRange: [],
             relatedSongs: [],
@@ -39,6 +40,7 @@ class SongsPage extends React.Component {
         this.updateSearchResults = this.updateSearchResults.bind(this)
         this.updateRangeSearchResults = this.updateRangeSearchResults.bind(this)
         this.handleSongQueryChange = this.handleSongQueryChange.bind(this)
+        this.handleArtistQueryChange = this.handleArtistQueryChange.bind(this)
         this.handleDanceabilityChange = this.handleDanceabilityChange.bind(this)
         this.handleEnergyChange = this.handleEnergyChange.bind(this)
         this.handleLoudnessChange = this.handleLoudnessChange.bind(this)
@@ -48,12 +50,15 @@ class SongsPage extends React.Component {
     handleSongQueryChange(event) {
         this.setState({ songQuery: event.target.value })
     }
+    handleArtistQueryChange(event) {
+        this.setState({ artistQuery: event.target.value })
+    }
 
     updateSearchResults() {
         getSongKeyTime(this.state.songQuery, null, null).then(res => {
             this.setState({ similarSongKeyTime: res.results });
         });
-        getRelatedSongs(this.state.songQuery).then(res => {
+        getRelatedSongs(this.state.songQuery, this.state.artistQuery).then(res => {
             this.setState({ relatedSongs : res.results});
         });
     }
@@ -86,12 +91,12 @@ class SongsPage extends React.Component {
     }
 
     componentDidMount() {
-        getSongKeyTime(this.state.songQuery, null, null).then(res => {
+        getSongKeyTime(this.state.songQuery, this.state.artistQuery, null, null).then(res => {
             this.setState({ similarSongKeyTime: res.results })
         });
-        getRelatedSongs(this.state.songQuery).then(res => {
+        getRelatedSongs(this.state.songQuery, this.state.artistQuery).then(res => {
             this.setState({ relatedSongs : res.results});
-            console.log(this.state.relatedSongs);
+            // console.log(this.state.relatedSongs)
         });
         getSongAttributeRange(this.state.minDanceability, this.state.maxDanceability, this.state.minEnergy, this.state.maxEnergy,
             this.state.minLoudness, this.state.maxLoudness, this.state.minSpeechiness, this.state.maxSpeechiness).then(res => {
@@ -108,7 +113,11 @@ class SongsPage extends React.Component {
                     <Row>
                         <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
                             <label>Song</label>
-                            <FormInput placeholder="Song" value={this.state.songQuery} onChange={this.handleSongQueryChange} />
+                            <FormInput placeholder="Bohemian Rhapsody" value={this.state.songQuery} onChange={this.handleSongQueryChange} />
+                        </FormGroup></Col>
+                        <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
+                            <label>Artist (optional)</label>
+                            <FormInput placeholder="Queen" value={this.state.artistQuery} onChange={this.handleArtistQueryChange} />
                         </FormGroup></Col>
                         <Col flex={2}><FormGroup style={{ width: '10vw' }}>
                             <Button style={{ marginTop: '4vh' }} onClick={this.updateSearchResults}>Search</Button>

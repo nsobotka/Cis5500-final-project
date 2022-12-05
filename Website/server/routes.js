@@ -12,54 +12,8 @@ const connection = mysql.createConnection({
 });
 connection.connect();
 
-// async function get_artists(req, res) {
-//     const artist = req.query.artist_mb ? req.query.artist_mb : 'Snoop Dogg'
-//     //handle /top_artist_count query
-//     if (req.query.page && !isNaN(req.query.page)) {
-//         //if a page attribute (with an optional pagesize attribute) was passed
-//         const page = req.query.page
-//         const pagesize = (req.query.pagesize && !isNaN(req.query.pagesize)) ? req.query.pagesize : 10
-//         connection.query(`WITH Bruno_Mars_Genres AS (
-//                             SELECT artist_mb, tags_lastfm
-//                             FROM Genre USE INDEX (genre_artist_tags)
-//                             WHERE artist_mb = '${artist}'
-//                         )
-//                         SELECT Genre.artist_mb, Genre.tags_lastfm, listeners_lastfm
-//                         FROM Genre USE INDEX (genre_artist_tags), Bruno_Mars_Genres
-//                         WHERE Genre.tags_lastfm LIKE CONCAT('%', SUBSTRING_INDEX(Bruno_Mars_Genres.tags_lastfm, ';', 2), '%') AND
-//                             Genre.artist_mb != Bruno_Mars_Genres.artist_mb
-//                         ORDER BY listeners_lastfm DESC
-//                         LIMIT ${pagesize} OFFSET ${(page - 1) * pagesize}`, function (error, results, fields) {
 
-//             if (error) {
-//                 console.log(error)
-//                 res.json({ error: error })
-//             } else if (results) {
-//                 res.json({ results: results })
-//             }
-//         });
-
-//     } else {
-//         connection.query(`WITH Bruno_Mars_Genres AS (
-//                         SELECT artist_mb, tags_lastfm
-//                         FROM Genre USE INDEX (genre_artist_tags)
-//                         WHERE artist_mb = '${artist}'
-//                     )
-//                     SELECT Genre.artist_mb, Genre.tags_lastfm, listeners_lastfm
-//                     FROM Genre USE INDEX (genre_artist_tags), Bruno_Mars_Genres
-//                     WHERE Genre.tags_lastfm LIKE CONCAT('%', SUBSTRING_INDEX(Bruno_Mars_Genres.tags_lastfm, ';', 2), '%') AND
-//                         Genre.artist_mb != Bruno_Mars_Genres.artist_mb
-//                     ORDER BY listeners_lastfm DESC`, function (error, results, fields) {
-//             if (error) {
-//                 console.log(error)
-//                 res.json({ error: error })
-//             } else if (results) {
-//                 res.json({ results: results })
-//             }
-//         });
-//     }
-// }
-
+// Query 2
 async function artists_from(req, res) {
     const country = req.query.country ? req.query.country : 'United States';
     const date = req.query.date ? req.query.date : '2020';
@@ -104,58 +58,10 @@ async function artists_from(req, res) {
 }
 
 
-
-async function get_similar_artists(req, res) {
-    const artist = req.query.artist_mb ? req.query.artist_mb : 'Bruno Mars'
-    //handle /top_artist_count query
-    if (req.query.page && !isNaN(req.query.page)) {
-        //if a page attribute (with an optional pagesize attribute) was passed
-        const page = req.query.page
-        const pagesize = (req.query.pagesize && !isNaN(req.query.pagesize)) ? req.query.pagesize : 10
-        connection.query(`WITH Bruno_Mars_Genres AS (
-                            SELECT artist_mb, tags_lastfm
-                            FROM Genre USE INDEX (genre_artist_tags)
-                            WHERE artist_mb = '${artist}'
-                        )
-                        SELECT Genre.artist_mb, Genre.tags_lastfm, listeners_lastfm
-                        FROM Genre USE INDEX (genre_artist_tags), Bruno_Mars_Genres
-                        WHERE Genre.tags_lastfm LIKE CONCAT('%', SUBSTRING_INDEX(Bruno_Mars_Genres.tags_lastfm, ';', 2), '%') AND
-                            Genre.artist_mb != Bruno_Mars_Genres.artist_mb
-                        ORDER BY listeners_lastfm DESC
-                        LIMIT ${pagesize} OFFSET ${(page - 1) * pagesize}`, function (error, results, fields) {
-
-            if (error) {
-                console.log(error)
-                res.json({ error: error })
-            } else if (results) {
-                res.json({ results: results })
-            }
-        });
-
-    } else {
-        connection.query(`WITH Bruno_Mars_Genres AS (
-                        SELECT artist_mb, tags_lastfm
-                        FROM Genre USE INDEX (genre_artist_tags)
-                        WHERE artist_mb = '${artist}'
-                    )
-                    SELECT Genre.artist_mb, Genre.tags_lastfm, listeners_lastfm
-                    FROM Genre USE INDEX (genre_artist_tags), Bruno_Mars_Genres
-                    WHERE Genre.tags_lastfm LIKE CONCAT('%', SUBSTRING_INDEX(Bruno_Mars_Genres.tags_lastfm, ';', 2), '%') AND
-                        Genre.artist_mb != Bruno_Mars_Genres.artist_mb
-                    ORDER BY listeners_lastfm DESC`, function (error, results, fields) {
-            if (error) {
-                console.log(error)
-                res.json({ error: error })
-            } else if (results) {
-                res.json({ results: results })
-            }
-        });
-    }
-}
-
 //Query 3
 async function top_year_albums(req, res) {
     const year = req.query.year ? req.query.year : 2020
+    const region = req.query.region1 ? req.query.region1 : 'United States'
     
     connection.query(`WITH filtered_albums AS (
         SELECT album, album_id, release_date
@@ -165,7 +71,7 @@ async function top_year_albums(req, res) {
     filtered_charts AS (
         SELECT artist, title
         FROM Charts USE INDEX (chart_all_attr)
-        WHERE region = 'United States' #User defined
+        WHERE region = '${region}'
     ),
     Most_Popular_Artists AS (
         SELECT Artists.artist_id, Artists.artist, title, count(Artists.artist) as num
@@ -215,13 +121,63 @@ async function get_song_attribute_range(req, res) {
     });
 }
 
+// Query 5
+async function get_similar_artists(req, res) {
+    const artist = req.query.artist_mb ? req.query.artist_mb : 'Bruno Mars'
+    //handle /top_artist_count query
+    if (req.query.page && !isNaN(req.query.page)) {
+        //if a page attribute (with an optional pagesize attribute) was passed
+        const page = req.query.page
+        const pagesize = (req.query.pagesize && !isNaN(req.query.pagesize)) ? req.query.pagesize : 10
+        connection.query(`WITH Bruno_Mars_Genres AS (
+                            SELECT artist_mb, tags_lastfm
+                            FROM Genre USE INDEX (genre_artist_tags)
+                            WHERE artist_mb = '${artist}'
+                        )
+                        SELECT Genre.artist_mb, Genre.tags_lastfm, listeners_lastfm
+                        FROM Genre USE INDEX (genre_artist_tags), Bruno_Mars_Genres
+                        WHERE Genre.tags_lastfm LIKE CONCAT('%', SUBSTRING_INDEX(Bruno_Mars_Genres.tags_lastfm, ';', 2), '%') AND
+                            Genre.artist_mb != Bruno_Mars_Genres.artist_mb
+                        ORDER BY listeners_lastfm DESC
+                        LIMIT ${pagesize} OFFSET ${(page - 1) * pagesize}`, function (error, results, fields) {
+
+            if (error) {
+                console.log(error)
+                res.json({ error: error })
+            } else if (results) {
+                res.json({ results: results })
+            }
+        });
+
+    } else {
+        connection.query(`WITH Bruno_Mars_Genres AS (
+                        SELECT artist_mb, tags_lastfm
+                        FROM Genre USE INDEX (genre_artist_tags)
+                        WHERE artist_mb = '${artist}'
+                    )
+                    SELECT Genre.artist_mb, Genre.tags_lastfm, listeners_lastfm
+                    FROM Genre USE INDEX (genre_artist_tags), Bruno_Mars_Genres
+                    WHERE Genre.tags_lastfm LIKE CONCAT('%', SUBSTRING_INDEX(Bruno_Mars_Genres.tags_lastfm, ';', 2), '%') AND
+                        Genre.artist_mb != Bruno_Mars_Genres.artist_mb
+                    ORDER BY listeners_lastfm DESC`, function (error, results, fields) {
+            if (error) {
+                console.log(error)
+                res.json({ error: error })
+            } else if (results) {
+                res.json({ results: results })
+            }
+        });
+    }
+}
+
 //Query 6
 async function get_related_songs(req, res) {
     const input_song = req.query.input_song ? req.query.input_song : 'Hymn for the Weekend'
+    const input_artist = req.query.input_artist ? req.query.input_artist : ''
     connection.query(`WITH Input_Song AS (
         SELECT Songs.name_, A.artist, Songs.artist_id
         FROM Songs JOIN Artists A on Songs.artist_id = A.artist_id
-        WHERE Songs.name_ = '${input_song}'
+        WHERE Songs.name_ = '${input_song}' AND A.artist LIKE '%${input_artist}%'
         LIMIT 1
     ), Input_Song_Genre AS (
         SELECT Genre.artist_mb, SUBSTRING_INDEX(tags_lastfm, ';', 2) as genre_tags
@@ -251,9 +207,31 @@ async function get_related_songs(req, res) {
     });
 }
 
+// QUERY 7:
+async function get_top_artists_in_region(req, res) {
+    const region = req.query.region ? req.query.region : 'United States'
+    const date = req.query.date ? req.query.date : '2020'
+    connection.query(`SELECT artist, COUNT(artist) AS artist_freq
+                    FROM Charts USE INDEX(chart_all_but_title)
+                    WHERE SUBSTR(date_, 1, 4) = '${date}'
+                    AND region = '${region}'
+                    GROUP BY artist
+                    ORDER BY artist_freq DESC
+                    LIMIT 5;`, function (error, results, fields) {
+
+        if (error) {
+            console.log(error)
+            res.json({ error: error })
+        } else if (results) {
+            res.json({ results: results })
+        }
+    });
+}
+
 //Query 8
 async function get_song_key_time(req, res) {
     const input_song = req.query.input_song ? req.query.input_song : 'Hymn for the Weekend'
+    const input_artist = req.query.input_artist ? req.query.input_artist : ''
     //handle /top_artist_count query
     if (req.query.page && !isNaN(req.query.page)) {
         //if a page attribute (with an optional pagesize attribute) was passed
@@ -261,10 +239,10 @@ async function get_song_key_time(req, res) {
         const pagesize = (req.query.pagesize && !isNaN(req.query.pagesize)) ? req.query.pagesize : 10
         connection.query(`WITH Input_Song AS (
                         SELECT Songs.artist_id, Songs.key_, Songs.time_signature
-                        FROM Songs USE INDEX (songs_artist_key_time)
-                        WHERE name_ = '${input_song}'
+                        FROM Songs USE INDEX (songs_artist_key_time) JOIN Artists A on Songs.artist_id = A.artist_id
+                        WHERE Songs.name_ = '${input_song}' AND A.artist LIKE '%${input_artist}%'
                         LIMIT 1
-                    )
+                        )
                     SELECT DISTINCT name_, Artists.artist, Songs.key_, Songs.time_signature
                     FROM Songs USE INDEX (songs_artist_key_time) JOIN Artists ON Songs.artist_id = Artists.artist_id, Input_Song
                     WHERE Songs.key_ = Input_Song.key_ AND Songs.time_signature = Input_Song.time_signature
@@ -283,10 +261,10 @@ async function get_song_key_time(req, res) {
     } else {
         connection.query(`WITH Input_Song AS (
                         SELECT Songs.artist_id, Songs.key_, Songs.time_signature
-                        FROM Songs USE INDEX (songs_artist_key_time)
-                        WHERE name_ = '${input_song}'
+                        FROM Songs USE INDEX (songs_artist_key_time) JOIN Artists A on Songs.artist_id = A.artist_id
+                        WHERE Songs.name_ = '${input_song}' AND A.artist LIKE '%${input_artist}%'
                         LIMIT 1
-                    )
+                        )
                     SELECT DISTINCT name_, Artists.artist, Songs.key_, Songs.time_signature
                     FROM Songs USE INDEX (songs_artist_key_time) JOIN Artists ON Songs.artist_id = Artists.artist_id, Input_Song
                     WHERE Songs.key_ = Input_Song.key_ AND Songs.time_signature = Input_Song.time_signature
@@ -306,6 +284,7 @@ async function get_song_key_time(req, res) {
 async function albums_region_chart(req, res) {
     const region = req.query.region ? req.query.region : 'United States'
     const chart = req.query.chart ? req.query.chart : 'top200'
+    const year = req.query.year ? req.query.year : '2017'
     connection.query(`WITH song_count AS (
         SELECT title, artist, COUNT(date_) as chart_appearances
         FROM Charts USE INDEX (chart_all_attr)
@@ -315,7 +294,7 @@ async function albums_region_chart(req, res) {
     Album_year AS (
         SELECT album_id, album, release_date
         FROM Album_Info
-        WHERE SUBSTR(release_date, 1, 4) = '2017'  #user inputted
+        WHERE SUBSTR(release_date, 1, 4) = '${year}'
     ),
     Albums_Of_Chart_Songs AS (
         SELECT song_count.title, song_count.artist, album, release_date, song_count.chart_appearances
@@ -350,4 +329,5 @@ module.exports = {
     get_related_songs,
     top_year_albums,
     albums_region_chart,
+    get_top_artists_in_region,
 }

@@ -217,15 +217,17 @@ ORDER BY listeners_lastfm DESC;
 # QUERY 6:
 # Find songs that are related to a user inputted song (HARD 2)
 # The following query will not be hardcoded in the React implementation
+SELECT Songs.name_, Artists.artist
+FROM Songs JOIN Artists ON Songs.artist_id = Artists.artist_id
+WHERE Songs.name_ = 'Bohemian Rhapsody';
 
 # Scenario: we are given a coldplay song
 WITH Input_Song AS (
     SELECT Songs.name_, A.artist, Songs.artist_id
     FROM Songs JOIN Artists A on Songs.artist_id = A.artist_id
-    WHERE A.artist = 'Taylor Swift'
+    WHERE Songs.name_ = 'Bohemian Rhapsody' AND A.artist LIKE '%Queen%'
     LIMIT 1
 )
-
 # Now, we found the input songs genre
 , Input_Song_Genre AS (
     SELECT Genre.artist_mb, SUBSTRING_INDEX(tags_lastfm, ';', 2) as genre_tags
@@ -268,8 +270,8 @@ LIMIT 5;
 # Find songs that are in the same key and time signature as a user inputted song
 WITH Input_Song AS (
     SELECT Songs.artist_id, Songs.key_, Songs.time_signature
-                        FROM Songs USE INDEX (songs_artist_key_time)
-                        WHERE name_ = 'Hello'
+                        FROM Songs USE INDEX (songs_artist_key_time) JOIN Artists A on Songs.artist_id = A.artist_id
+                        WHERE name_ = 'Bohemian Rhapsody' and A.artist LIKE '%Queen%'
                         LIMIT 1
 )
 SELECT DISTINCT Songs.name_, Artists.artist, Songs.key_, Songs.time_signature
