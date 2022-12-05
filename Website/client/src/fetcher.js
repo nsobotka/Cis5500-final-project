@@ -1,3 +1,4 @@
+// import { count } from 'console'
 import config from './config.json'
 
 const getSimilarArtists = async (artist_mb, page, pagesize) => {
@@ -8,11 +9,11 @@ const getSimilarArtists = async (artist_mb, page, pagesize) => {
     return res.json()
 }
 
-const getArtists = async (artist_mb, page, pagesize) => {
-    var res = await fetch(`http://${config.server_host}:${config.server_port}/artists?artist_mb=${artist_mb}&page=${page}&pagesize=${pagesize}`, {
+const getArtistsFrom = async (country, date, page, pagesize) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/artists_from?country=${country}&date=${date}&page=${page}&pagesize=${pagesize}`, {
         method: 'GET',
     })
-    console.log('fetcher: getArtists')
+    console.log('fetcher: getArtistsFrom')
     return res.json()
 }
 
@@ -42,6 +43,7 @@ const getRelatedSongs = async (input_song) => {
 
 export {
     getSimilarArtists,
+    getArtistsFrom,
     getSongKeyTime,
     getSongAttributeRange,
     getRelatedSongs
