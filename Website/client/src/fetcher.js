@@ -56,6 +56,19 @@ const getTopArtistsInRegion = async (region, date) => {
     })
     return res.json()
 }
+const tagsByRegion = async () => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/tags_by_region`, {
+        method: 'GET',
+    })
+    return res.json()
+}
+
+const artistSongTypePopularity = async (artist, similarity) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/artist_song_type?artist=${artist}&similarity=${similarity}`, {
+        method: 'GET',
+    })
+    return res.json()
+}
 
 export {
     getSimilarArtists,
@@ -66,4 +79,6 @@ export {
     getTopYearAlbums,
     getAlbumsRegionChart,
     getTopArtistsInRegion,
+    tagsByRegion,
+    artistSongTypePopularity
 }

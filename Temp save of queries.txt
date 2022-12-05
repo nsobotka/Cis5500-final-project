@@ -185,6 +185,7 @@ FROM filtered_albums JOIN Songs S USE INDEX (songs_album_artist) on filtered_alb
                      JOIN Most_Popular_Artists ON Most_Popular_Artists.artist_id = S.artist_id;
 
 
+
 # QUERY 4:
 # Given a dial, a user interacting with the website can find songs with desired attributed scores for danceability, energy, etc.
 # Note: the ranges below are user determined, we hardcoded them for demonstration purposes
@@ -257,7 +258,7 @@ SELECT * FROM Similar_Artists_Songs GROUP BY(artist);
 
 # QUERY 7:
 # Get the 5 most popular artists with some user inputted date and region.
-SELECT date_ as date, region, artist, COUNT(artist) AS artist_freq
+SELECT artist, COUNT(artist) AS artist_freq
 FROM Charts USE INDEX (chart_all_but_title)
 WHERE SUBSTR(date_, 1, 4) = '2020' # User inputted
 AND region = 'El Salvador'
@@ -302,7 +303,7 @@ Genre_By_country AS (
 Songs_By_Danceability AS (
     SELECT name_ as name, artist_id
     FROM Songs USE INDEX (songs_artist_dance), Input_Song_Region
-    WHERE Songs.danceability >= Input_Song_Region.danceability - 0.1 # User defined similarity score
+    WHERE Songs.danceability >= Input_Song_Region.danceability - 0.1# User defined similarity score
       AND Songs.danceability <= Input_Song_Region.danceability + 0.1
 ),
 Songs_Same_Danceability_Region AS (
@@ -318,7 +319,8 @@ Freq_Song_On_Chart AS (
 )
 SELECT chart, region, AVG(chart_appearances) as avg_appearances
 FROM Freq_Song_On_Chart
-GROUP BY chart, region;
+GROUP BY chart, region
+ORDER BY avg_appearances DESC;
 
 
 
