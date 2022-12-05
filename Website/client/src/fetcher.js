@@ -40,9 +40,18 @@ const getRelatedSongs = async (input_song) => {
     return res.json()
 }
 
+const getTopYearAlbums = async (year) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/top_year_albums?year=${year}`, {
+        method: 'GET',
+    })
+    console.log('fetcher: getTopYearAlbums')
+    return res.json()
+}
+
 export {
     getSimilarArtists,
     getSongKeyTime,
     getSongAttributeRange,
-    getRelatedSongs
+    getRelatedSongs,
+    getTopYearAlbums
 }

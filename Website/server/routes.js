@@ -108,6 +108,38 @@ async function get_similar_artists(req, res) {
     }
 }
 
+//Query 3
+async function top_year_albums(req, res) {
+    const year = req.query.year ? req.query.year : 2020
+    
+    connection.query(`WITH filtered_albums AS (
+        SELECT album, album_id, release_date
+        FROM Album_Info USE INDEX (album_id_name_date)
+        WHERE SUBSTR(Album_Info.release_date, 1, 4) = '${year}'
+    ),
+    filtered_charts AS (
+        SELECT artist, title
+        FROM Charts USE INDEX (chart_all_attr)
+        WHERE region = 'United States' #User defined
+    ),
+    Most_Popular_Artists AS (
+        SELECT Artists.artist_id, Artists.artist, title, count(Artists.artist) as num
+        FROM Artists JOIN filtered_charts C on Artists.artist = C.artist
+        GROUP BY Artists.artist_id, C.title
+    )
+    SELECT DISTINCT artist, album, release_date
+    FROM filtered_albums JOIN Songs S USE INDEX (songs_album_artist) on filtered_albums.album_id = S.album_id
+                         JOIN Most_Popular_Artists ON Most_Popular_Artists.artist_id = S.artist_id`, function (error, results, fields) {
+
+        if (error) {
+            console.log(error)
+            res.json({ error: error })
+        } else if (results) {
+            res.json({ results: results })
+        }
+        });
+}
+
 //Query 4
 async function get_song_attribute_range(req, res) {
     const min_danceability = req.query.min_danceability ? req.query.min_danceability : 0.0;
@@ -138,9 +170,9 @@ async function get_song_attribute_range(req, res) {
     });
 }
 
+//Query 6
 async function get_related_songs(req, res) {
     const input_song = req.query.input_song ? req.query.input_song : 'Hymn for the Weekend'
-    console.log(input_song)
     connection.query(`WITH Input_Song AS (
         SELECT Songs.name_, A.artist, Songs.artist_id
         FROM Songs JOIN Artists A on Songs.artist_id = A.artist_id
@@ -230,4 +262,5 @@ module.exports = {
     get_song_key_time,
     get_song_attribute_range,
     get_related_songs,
+    top_year_albums,
 }

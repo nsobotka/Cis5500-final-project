@@ -28,6 +28,11 @@ class MenuBar extends React.Component {
                             Songs
                         </NavLink>
                     </NavItem>
+                    <NavItem>
+                        <NavLink active href="/albums">
+                            Albums
+                        </NavLink>
+                    </NavItem>
                 </Nav>
             </Navbar>
         )

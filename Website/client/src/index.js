@@ -13,6 +13,7 @@ import 'antd/dist/antd.css';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "shards-ui/dist/css/shards.min.css"
 import SongsPage from './pages/SongsPage';
+import AlbumPage from './pages/AlbumPage';
 
 ReactDOM.render(
   <div>
@@ -32,6 +33,11 @@ ReactDOM.render(
           path="/songs"
           render={() => (
             <SongsPage />
+          )} />
+        <Route exact
+          path="/albums"
+          render={() => (
+            <AlbumPage />
           )} />
       </Switch>
     </Router>

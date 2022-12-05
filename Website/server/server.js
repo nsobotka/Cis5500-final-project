@@ -18,6 +18,7 @@ app.get('/artists', routes.get_similar_artists)
 app.get('/songs', routes.get_song_key_time)
 app.get('/songs_range', routes.get_song_attribute_range)
 app.get('/related_songs', routes.get_related_songs)
+app.get('/top_year_albums', routes.top_year_albums)
 
 app.listen(config.server_port, () => {
     console.log(`Server running at http://${config.server_host}:${config.server_port}/`);
