@@ -115,7 +115,7 @@ class HomePage extends React.Component {
             />
           </Table>
 
-          <h3>Most popular artists from each country</h3>
+          <h3>Most popular tags from each country</h3>
 
           <Table
             dataSource={this.state.tagsResults}
