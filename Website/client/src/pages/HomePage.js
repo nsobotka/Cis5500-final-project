@@ -1,4 +1,5 @@
 import React from "react";
+import ReactDOM from "react-dom";
 import { Form, FormInput, FormGroup, Button, Card, CardBody, CardTitle, Progress } from "shards-react";
 import {
   Table,
@@ -10,6 +11,7 @@ import {
   Slider,
   Rate
 } from 'antd'
+import MapChart from "../components/MapChart";
 
 import { getArtistsFrom, getTopArtistsInRegion, tagsByRegion, artistSongTypePopularity } from "../fetcher";
 import MenuBar from "../components/MenuBar";
@@ -82,9 +84,13 @@ class HomePage extends React.Component {
   }
 
   render() {
+
     return (
       <div>
         <MenuBar />
+
+        <MapChart />
+
         <div style={{ width: "70vw", margin: "0 auto", marginTop: "5vh" }}>
 
           <h3>Most popular artists from each country</h3>
