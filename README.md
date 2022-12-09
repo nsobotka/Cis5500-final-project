@@ -3,6 +3,9 @@ Cis5500 Final Project - Group 5
 
 Authors: Tasos Panagopoulos, Aviel Resnick, Nathan Sobotka, Joshua Valluru
 
+# How to build
+TODO.
+
 ## Table of contents
 * [Motivation](#motivation)
 * [Project Description](#description)
