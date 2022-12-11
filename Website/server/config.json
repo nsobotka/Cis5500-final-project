@@ -1,8 +1,8 @@
 {
-    "rds_host": "nov30-proj-db.csezytyt9fvd.us-east-1.rds.amazonaws.com",
+    "rds_host": "database-1.cnxg3h8vnjpn.us-east-1.rds.amazonaws.com",
     "rds_port": "3306",
-    "rds_user": "admin",
-    "rds_password" : "password",
+    "rds_user": "jnat",
+    "rds_password" : "S1obotka!",
     "rds_db": "Final_Project",
     "server_host": "127.0.0.1",
     "server_port":"8080"
