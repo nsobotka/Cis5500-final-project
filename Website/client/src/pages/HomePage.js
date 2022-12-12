@@ -39,6 +39,11 @@ class HomePage extends React.Component {
     this.updateArtistSongTypeResults = this.updateArtistSongTypeResults.bind(this);
     this.handleDateQueryChange = this.handleDateQueryChange.bind(this);
     this.handleCountryQueryChange = this.handleCountryQueryChange.bind(this);
+    this.goToArtist = this.goToArtist.bind(this)
+  }
+
+  goToArtist(artist) {
+    window.location = `/artists?artist_mb=${artist}&page=${null}&pagesize=${null}`
   }
   
   handleDateQueryChange(event) {
@@ -177,7 +182,10 @@ class HomePage extends React.Component {
           </Form>
           <h3>Top 5 most popular artists in the given country</h3>
 
-          <Table
+          <Table onRow={(record) => {
+            return {
+              onClick: event => {this.goToArtist(record.artist)}, // clicking a row takes the user to a detailed view of the match in the /matches page using the MatchId parameter  
+            };}}
             // return {
             //   onClick: event => { this.goToMatch(record.MatchId) }, // clicking a row takes the user to a detailed view of the match in the /matches page using the MatchId parameter
             // };

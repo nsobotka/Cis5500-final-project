@@ -44,10 +44,20 @@ class ArtistsPage extends React.Component {
 
         this.state = {
             artistQuery: '',
-            topArtistResults: []
+            topArtistResults: [],
+            prevArtist: '',
+            wasClick: 0,
+            selectedArtistId: window.location.search ? window.location.search.substring(1).split('=')[1] : 0,
         }
         this.updateSearchResults = this.updateSearchResults.bind(this)
         this.handleArtistQueryChange = this.handleArtistQueryChange.bind(this)
+        this.goToArtist = this.goToArtist.bind(this)
+    }
+
+    goToArtist(artist) {
+        window.location = `/artists?artist_mb=${artist}&page=${null}&pagesize=${null}`
+        this.setState({ prevArtist: artist })
+        this.setState({ wasClick: 1 })
     }
 
     handleArtistQueryChange(event) {
@@ -57,6 +67,11 @@ class ArtistsPage extends React.Component {
     updateSearchResults() {
         getSimilarArtists(this.state.artistQuery, null, null).then(res => {
             this.setState({ topArtistResults: res.results })
+            if (this.state.wasClick == 1) {
+                this.setState({ wasClick: 0 })
+            } else {
+                this.setState({ prevArtist: this.state.artistQuery })
+            }
         })
     }
 
@@ -64,7 +79,19 @@ class ArtistsPage extends React.Component {
     componentDidMount() {
         getSimilarArtists(this.state.artistQuery, null, null).then(res => {
             this.setState({ topArtistResults: res.results })
+            if (this.state.wasClick == 1) {
+                this.setState({ wasClick: 0 })
+            } else {
+                this.setState({ prevArtist: this.state.artistQuery })
+            }
         })
+
+        if (this.state.selectedArtistId) {
+            getSimilarArtists(this.state.selectedArtistId, null, null).then(res => {
+                this.setState({ topArtistResults: res.results })
+                this.setState({ prevArtist: this.state.selectedArtistId.split('%')[0].split('&')[0] })
+            })
+        }
 
     }
 
@@ -87,13 +114,13 @@ class ArtistsPage extends React.Component {
                 </Form>
                 <Divider />
                 <div style={{ width: '70vw', margin: '0 auto', marginTop: '5vh' }}>
-                    <h3>Similar Artists</h3>
+                    <h3>Similar Artists to {this.state.prevArtist}</h3>
                     {/* <Table dataSource={this.state.topArtistResults} columns={artistColumns} pagination={{ pageSizeOptions:[5, 10], defaultPageSize: 5, showQuickJumper:true }}/> */}
 
-                    <Table
-                        // return {
-                        //   onClick: event => { this.goToMatch(record.MatchId) }, // clicking a row takes the user to a detailed view of the match in the /matches page using the MatchId parameter  
-                        // };
+                    <Table onRow={(record) => {
+                        return {
+                            onClick: event => {this.goToArtist(record.artist_mb)},
+                        };}}
                         dataSource={this.state.topArtistResults} pagination={{ pageSizeOptions: [5, 10], defaultPageSize: 5, showQuickJumper: true }}>
                         <Column title="Artist" dataIndex="artist_mb" key="artist_mb" sorter={(a, b) => a.artist_mb.localeCompare(b.artist_mb)} />
                         <Column title="Tags" dataIndex="tags_lastfm" key="Tags" />
