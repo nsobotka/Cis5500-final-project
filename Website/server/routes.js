@@ -114,14 +114,14 @@ async function top_year_albums(req, res) {
 
 //Query 4
 async function get_song_attribute_range(req, res) {
-    const min_danceability = req.query.min_danceability ? req.query.min_danceability : 0.0;
-    const max_danceability = req.query.max_danceability ? req.query.max_danceability : 1.0;
-    const min_energy = req.query.min_energy ? req.query.min_energy : 0.0;
-    const max_energy = req.query.max_energy ? req.query.max_energy : 1.0;
-    const min_loudness = req.query.min_loudness ? req.query.min_loudness : 0.0;
-    const max_loudness = req.query.max_loudness ? req.query.max_loudness : 1.0;
-    const min_speechiness = req.query.min_speechiness ? req.query.min_speechiness : 0.0;
-    const max_speechiness = req.query.max_speechiness ? req.query.max_speechiness : 1.0;
+    const min_danceability = req.query.min_danceability ? req.query.min_danceability : 0.2;
+    const max_danceability = req.query.max_danceability ? req.query.max_danceability : 0.8;
+    const min_energy = req.query.min_energy ? req.query.min_energy : 0.2;
+    const max_energy = req.query.max_energy ? req.query.max_energy : 0.9;
+    const min_loudness = req.query.min_loudness ? req.query.min_loudness : 0.2;
+    const max_loudness = req.query.max_loudness ? req.query.max_loudness : 0.8;
+    const min_speechiness = req.query.min_speechiness ? req.query.min_speechiness : 0.1;
+    const max_speechiness = req.query.max_speechiness ? req.query.max_speechiness : 0.8;
     connection.query(`WITH filtered_songs AS (
         SELECT name_, artist_id, danceability, energy, speechiness, loudness
         FROM Songs USE INDEX (songs_all_attr)
@@ -159,6 +159,7 @@ async function get_similar_artists(req, res) {
                         FROM Genre USE INDEX (genre_artist_tags), Bruno_Mars_Genres
                         WHERE Genre.tags_lastfm LIKE CONCAT('%', SUBSTRING_INDEX(Bruno_Mars_Genres.tags_lastfm, ';', 2), '%') AND
                             Genre.artist_mb != Bruno_Mars_Genres.artist_mb
+                            AND Genre.artist_mb REGEXP '[A-Za-z0-9.,-]'
                         ORDER BY listeners_lastfm DESC
                         LIMIT ${pagesize} OFFSET ${(page - 1) * pagesize}`, function (error, results, fields) {
 
@@ -180,6 +181,7 @@ async function get_similar_artists(req, res) {
                     FROM Genre USE INDEX (genre_artist_tags), Bruno_Mars_Genres
                     WHERE Genre.tags_lastfm LIKE CONCAT('%', SUBSTRING_INDEX(Bruno_Mars_Genres.tags_lastfm, ';', 2), '%') AND
                         Genre.artist_mb != Bruno_Mars_Genres.artist_mb
+                        AND Genre.artist_mb REGEXP '[A-Za-z0-9.,-]'
                     ORDER BY listeners_lastfm DESC`, function (error, results, fields) {
             if (error) {
                 console.log(error)
@@ -193,8 +195,8 @@ async function get_similar_artists(req, res) {
 
 //Query 6
 async function get_related_songs(req, res) {
-    const input_song = req.query.input_song ? req.query.input_song : 'Hymn for the Weekend'
-    const input_artist = req.query.input_artist ? req.query.input_artist : ''
+    const input_song = req.query.input_song ? req.query.input_song : 'Bohemian Rhapsody'
+    const input_artist = req.query.input_artist ? req.query.input_artist : 'Queen'
     connection.query(`WITH Input_Song AS (
         SELECT Songs.name_, A.artist, Songs.artist_id
         FROM Songs JOIN Artists A on Songs.artist_id = A.artist_id
@@ -251,54 +253,30 @@ async function get_top_artists_in_region(req, res) {
 
 //Query 8
 async function get_song_key_time(req, res) {
-    const input_song = req.query.input_song ? req.query.input_song : 'Hymn for the Weekend'
-    const input_artist = req.query.input_artist ? req.query.input_artist : ''
-    //handle /top_artist_count query
-    if (req.query.page && !isNaN(req.query.page)) {
-        //if a page attribute (with an optional pagesize attribute) was passed
-        const page = req.query.page
-        const pagesize = (req.query.pagesize && !isNaN(req.query.pagesize)) ? req.query.pagesize : 10
-        connection.query(`WITH Input_Song AS (
-                        SELECT Songs.artist_id, Songs.key_, Songs.time_signature
-                        FROM Songs USE INDEX (songs_artist_key_time) JOIN Artists A on Songs.artist_id = A.artist_id
-                        WHERE Songs.name_ = '${input_song}' AND A.artist LIKE '%${input_artist}%'
-                        LIMIT 1
-                        )
-                    SELECT DISTINCT name_, Artists.artist, Songs.key_, Songs.time_signature
-                    FROM Songs USE INDEX (songs_artist_key_time) JOIN Artists ON Songs.artist_id = Artists.artist_id, Input_Song
-                    WHERE Songs.key_ = Input_Song.key_ AND Songs.time_signature = Input_Song.time_signature
-                    AND SUBSTR(Songs.name_, 1, 1) REGEXP '^[A-z]+$'
-                    AND SUBSTR(Artists.artist, 1, 1) REGEXP '^[A-z]+$'
-                        LIMIT ${pagesize} OFFSET ${(page - 1) * pagesize}`, function (error, results, fields) {
-
-            if (error) {
-                console.log(error)
-                res.json({ error: error })
-            } else if (results) {
-                res.json({ results: results })
-            }
-        });
-
-    } else {
-        connection.query(`WITH Input_Song AS (
-                        SELECT Songs.artist_id, Songs.key_, Songs.time_signature
-                        FROM Songs USE INDEX (songs_artist_key_time) JOIN Artists A on Songs.artist_id = A.artist_id
-                        WHERE Songs.name_ = '${input_song}' AND A.artist LIKE '%${input_artist}%'
-                        LIMIT 1
-                        )
-                    SELECT DISTINCT name_, Artists.artist, Songs.key_, Songs.time_signature
-                    FROM Songs USE INDEX (songs_artist_key_time) JOIN Artists ON Songs.artist_id = Artists.artist_id, Input_Song
-                    WHERE Songs.key_ = Input_Song.key_ AND Songs.time_signature = Input_Song.time_signature
-                    AND SUBSTR(Songs.name_, 1, 1) REGEXP '^[A-z]+$'
-                    AND SUBSTR(Artists.artist, 1, 1) REGEXP '^[A-z]+$'`, function (error, results, fields) {
-            if (error) {
-                console.log(error)
-                res.json({ error: error })
-            } else if (results) {
-                res.json({ results: results })
-            }
-        });
-    }
+    const input_song = req.query.input_song ? req.query.input_song : 'Bohemian Rhapsody'
+    const input_artist = req.query.input_artist ? req.query.input_artist : 'Queen'
+    connection.query(`WITH Input_Song AS (
+                SELECT Songs.artist_id, Songs.key_, Songs.time_signature
+                                    FROM Songs USE INDEX (songs_artist_key_time) JOIN Artists A on Songs.artist_id = A.artist_id
+                                    WHERE name_ = '${input_song}' and A.artist LIKE '%${input_artist}%'
+                                    LIMIT 1
+            ), new_songs AS (
+                SELECT Songs.name_, Songs.key_, Songs.time_signature, Songs.artist_id
+                FROM Songs USE INDEX (songs_artist_key_time), Input_Song
+                WHERE Songs.key_ = Input_Song.key_ AND Songs.time_signature = Input_Song.time_signature
+                AND Songs.name_ REGEXP '[A-Za-z0-9.,-]'
+            )
+            SELECT DISTINCT new_songs.name_, Artists.artist
+            FROM new_songs JOIN Artists ON new_songs.artist_id = Artists.artist_id, Input_Song
+            WHERE Artists.artist REGEXP '[A-Za-z0-9.,-]'
+            LIMIT 500;`, function (error, results, fields) {
+        if (error) {
+            console.log(error)
+            res.json({ error: error })
+        } else if (results) {
+            res.json({ results: results })
+        }
+    });
 }
 
 //Query 9

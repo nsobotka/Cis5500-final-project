@@ -22,8 +22,8 @@ const getSongAttributeRange = async (minDanceability, maxDanceability, minEnergy
     return res.json()
 };
 
-const getSongKeyTime = async (input_song, page, pagesize) => {
-    var res = await fetch(`http://${config.server_host}:${config.server_port}/songs?input_song=${input_song}&page=${page}&pagesize=${pagesize}`, {
+const getSongKeyTime = async (input_song) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/songs?input_song=${input_song}`, {
         method: 'GET',
     })
     return res.json()

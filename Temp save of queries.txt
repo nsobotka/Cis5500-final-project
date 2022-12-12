@@ -218,11 +218,6 @@ ORDER BY listeners_lastfm DESC;
 # QUERY 6:
 # Find songs that are related to a user inputted song (HARD 2)
 # The following query will not be hardcoded in the React implementation
-SELECT Songs.name_, Artists.artist
-FROM Songs JOIN Artists ON Songs.artist_id = Artists.artist_id
-WHERE Songs.name_ = 'Bohemian Rhapsody';
-
-# Scenario: we are given a coldplay song
 WITH Input_Song AS (
     SELECT Songs.name_, A.artist, Songs.artist_id
     FROM Songs JOIN Artists A on Songs.artist_id = A.artist_id
@@ -274,12 +269,16 @@ WITH Input_Song AS (
                         FROM Songs USE INDEX (songs_artist_key_time) JOIN Artists A on Songs.artist_id = A.artist_id
                         WHERE name_ = 'Bohemian Rhapsody' and A.artist LIKE '%Queen%'
                         LIMIT 1
+), new_songs AS (
+    SELECT Songs.name_, Songs.key_, Songs.time_signature, Songs.artist_id
+    FROM Songs USE INDEX (songs_artist_key_time), Input_Song
+    WHERE Songs.key_ = Input_Song.key_ AND Songs.time_signature = Input_Song.time_signature
+    AND Songs.name_ REGEXP '[A-Za-z0-9.,-]'
 )
-SELECT DISTINCT Songs.name_, Artists.artist, Songs.key_, Songs.time_signature
-FROM Songs USE INDEX (songs_artist_key_time) JOIN Artists ON Songs.artist_id = Artists.artist_id, Input_Song
-WHERE Songs.key_ = Input_Song.key_ AND Songs.time_signature = Input_Song.time_signature
-AND SUBSTR(Songs.name_, 1, 1) REGEXP '^[A-z]+$'
-AND SUBSTR(Artists.artist, 1, 1) REGEXP '^[A-z]+$';
+SELECT DISTINCT new_songs.name_, Artists.artist
+FROM new_songs JOIN Artists ON new_songs.artist_id = Artists.artist_id, Input_Song
+WHERE Artists.artist REGEXP '[A-Za-z0-9.,-]'
+LIMIT 500;
 
 
 # QUERY 9:

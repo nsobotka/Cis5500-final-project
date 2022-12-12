@@ -23,8 +23,8 @@ class SongsPage extends React.Component {
         super(props)
 
         this.state = {
-            songQuery: '',
-            artistQuery: '',
+            songQuery: 'Bohemian Rhapsody',
+            artistQuery: 'Queen',
             similarSongKeyTime: [],
             songAttributeRange: [],
             relatedSongs: [],
@@ -45,6 +45,11 @@ class SongsPage extends React.Component {
         this.handleEnergyChange = this.handleEnergyChange.bind(this)
         this.handleLoudnessChange = this.handleLoudnessChange.bind(this)
         this.handleSpeechinessChange = this.handleSpeechinessChange.bind(this)
+        this.goToArtist = this.goToArtist.bind(this)
+    }
+
+    goToArtist(artist) {
+        window.location = `/artists?artist_mb=${artist}&page=${null}&pagesize=${null}`
     }
 
     handleSongQueryChange(event) {
@@ -55,7 +60,7 @@ class SongsPage extends React.Component {
     }
 
     updateSearchResults() {
-        getSongKeyTime(this.state.songQuery, null, null).then(res => {
+        getSongKeyTime(this.state.songQuery).then(res => {
             this.setState({ similarSongKeyTime: res.results });
         });
         getRelatedSongs(this.state.songQuery, this.state.artistQuery).then(res => {
@@ -91,12 +96,11 @@ class SongsPage extends React.Component {
     }
 
     componentDidMount() {
-        getSongKeyTime(this.state.songQuery, this.state.artistQuery, null, null).then(res => {
+        getSongKeyTime(this.state.songQuery, this.state.artistQuery).then(res => {
             this.setState({ similarSongKeyTime: res.results })
         });
         getRelatedSongs(this.state.songQuery, this.state.artistQuery).then(res => {
             this.setState({ relatedSongs : res.results});
-            // console.log(this.state.relatedSongs)
         });
         getSongAttributeRange(this.state.minDanceability, this.state.maxDanceability, this.state.minEnergy, this.state.maxEnergy,
             this.state.minLoudness, this.state.maxLoudness, this.state.minSpeechiness, this.state.maxSpeechiness).then(res => {
@@ -127,20 +131,22 @@ class SongsPage extends React.Component {
                 </Form>
                 <Divider />
                 <div style={{ width: '70vw', margin: '0 auto', marginTop: '5vh' }}>
-                    <h3>Songs with Similar Key and Time Signatures</h3>
+                    <h3>Songs with the same key and time signature as {this.state.songQuery}</h3>
                     <Table
                         dataSource={this.state.similarSongKeyTime} pagination={{ pageSizeOptions: [5, 10], defaultPageSize: 5, showQuickJumper: true }}>
                         <Column title="Name" dataIndex="name_" key="name_" sorter={(a, b) => a.name_.localeCompare(b.name_)} />
                         <Column title="Artist" dataIndex="artist" key="artist" sorter={(a, b) => a.artist.localeCompare(b.artist)} />
-                        <Column title="Key" dataIndex="key_" key="key_" />
-                        <Column title="Time Signature" dataIndex="time_signature" key="time_signature" />
 
                     </Table>
                 </div>
                 <Divider />
                 <div style={{ width: '70vw', margin: '0 auto', marginTop: '5vh' }}>
-                    <h3>Related Songs</h3>
-                    <Table
+                    <h3>Related Songs to {this.state.songQuery}</h3>
+                    <Table onRow={(record) => {
+                            return {
+                                onClick: event => { this.goToArtist(record.artist) },
+                            };
+                        }}
                         dataSource={this.state.relatedSongs} pagination={{ pageSizeOptions: [5, 10], defaultPageSize: 5, showQuickJumper: true }}>
                         <Column title="Title" dataIndex="title" key="title" sorter={(a, b) => a.name_.localeCompare(b.name_)} />
                         <Column title="Artist" dataIndex="artist" key="artist" sorter={(a, b) => a.artist.localeCompare(b.artist)} />
@@ -152,11 +158,11 @@ class SongsPage extends React.Component {
                     <Row>
                         <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
                             <label>Danceability</label>
-                            <Slider range defaultValue={[0, 1]} min={0} max={1} step={0.01} onChange={this.handleDanceabilityChange} />
+                            <Slider range defaultValue={[0.2, 0.8]} min={0} max={1} step={0.01} onChange={this.handleDanceabilityChange} />
                         </FormGroup></Col>
                         <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
                             <label>Energy</label>
-                            <Slider range defaultValue={[0, 1]} min={0} max={1} step={0.01} onChange={this.handleEnergyChange} />
+                            <Slider range defaultValue={[0.2, 0.9]} min={0} max={1} step={0.01} onChange={this.handleEnergyChange} />
                         </FormGroup></Col>
                         <Col flex={2}><FormGroup style={{ width: '10vw' }}>
                         </FormGroup></Col>
@@ -164,11 +170,11 @@ class SongsPage extends React.Component {
                     <Row>
                         <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
                             <label>Loudness</label>
-                            <Slider range defaultValue={[0, 1]} min={0} max={1} step={0.01} onChange={this.handleLoudnessChange} />
+                            <Slider range defaultValue={[0.2, 0.8]} min={0} max={1} step={0.01} onChange={this.handleLoudnessChange} />
                         </FormGroup></Col>
                         <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
                             <label>Speechiness</label>
-                            <Slider range defaultValue={[0, 1]} min={0} max={1} step={0.01} onChange={this.handleSpeechinessChange} />
+                            <Slider range defaultValue={[0.1, 0.8]} min={0} max={1} step={0.01} onChange={this.handleSpeechinessChange} />
                         </FormGroup></Col>
                         <Col flex={2}><FormGroup style={{ width: '10vw' }}>
                             <Button style={{ marginTop: '4vh' }} onClick={this.updateRangeSearchResults}>Search</Button>
