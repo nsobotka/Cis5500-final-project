@@ -1,22 +1,16 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { Form, FormInput, FormGroup, Button, Card, CardBody, CardTitle, Progress } from "shards-react";
+import { Form, FormInput, FormGroup, Button } from "shards-react";
 import {
   Table,
-  Pagination,
-  Select,
   Row,
   Col,
-  Divider,
-  Slider,
-  Rate
 } from 'antd'
 import MapChart from "../components/MapChart";
 
 import { getArtistsFrom, getTopArtistsInRegion, tagsByRegion, artistSongTypePopularity } from "../fetcher";
 import MenuBar from "../components/MenuBar";
-const { Column, ColumnGroup } = Table;
-const { Option } = Select;
+const { Column } = Table;
 
 class HomePage extends React.Component {
 

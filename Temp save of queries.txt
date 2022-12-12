@@ -273,11 +273,11 @@ WITH Input_Song AS (
     SELECT Songs.name_, Songs.key_, Songs.time_signature, Songs.artist_id
     FROM Songs USE INDEX (songs_artist_key_time), Input_Song
     WHERE Songs.key_ = Input_Song.key_ AND Songs.time_signature = Input_Song.time_signature
-    AND Songs.name_ REGEXP '[A-Za-z0-9.,-]'
+    AND SUBSTR(Songs.name_, 1, 1) REGEXP '^[A-z]+$'
 )
 SELECT DISTINCT new_songs.name_, Artists.artist
 FROM new_songs JOIN Artists ON new_songs.artist_id = Artists.artist_id, Input_Song
-WHERE Artists.artist REGEXP '[A-Za-z0-9.,-]'
+WHERE SUBSTR(Artists.artist, 1, 1) REGEXP '^[A-z]+$'
 LIMIT 500;
 
 
@@ -301,9 +301,10 @@ Genre_By_country AS (
 ),
 Songs_By_Danceability AS (
     SELECT name_ as name, artist_id
-    FROM Songs USE INDEX (songs_artist_dance), Input_Song_Region
+    FROM Songs USE INDEX (songs_artist_dance_name), Input_Song_Region
     WHERE Songs.danceability >= Input_Song_Region.danceability - 0.1# User defined similarity score
       AND Songs.danceability <= Input_Song_Region.danceability + 0.1
+      AND Songs.name_ REGEXP '^[A-Za-z0-9.,-]+$'
 ),
 Songs_Same_Danceability_Region AS (
     SELECT DISTINCT name

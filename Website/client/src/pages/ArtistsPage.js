@@ -1,41 +1,15 @@
 import React from 'react';
-import { Form, FormInput, FormGroup, Button, Card, CardBody, CardTitle, Progress } from "shards-react";
+import { Form, FormInput, FormGroup, Button} from "shards-react";
 import {
     Table,
-    Pagination,
-    Select,
     Row,
     Col,
     Divider,
-    Slider,
-    Rate
 } from 'antd'
 import MenuBar from '../components/MenuBar';
 import { getSimilarArtists } from '../fetcher'
 
-const { Column, ColumnGroup } = Table;
-const { Option } = Select;
-
-
-const artistColumns = [
-    {
-        title: 'Artist',
-        dataIndex: 'artist_mb',
-        key: 'artist_mb',
-        sorter: (a, b) => a.artist_mb.localeCompare(b.artist_mb)
-    },
-    {
-        title: 'Tags',
-        dataIndex: 'tags_lastfm',
-        key: 'tags_lastfm',
-    },
-    {
-        title: 'Listeners',
-        dataIndex: 'listeners_lastfm',
-        key: 'listeners_lastfm',
-        sorter: (a, b) => a.listeners_lastfm - b.listeners_lastfm,
-    },
-];
+const { Column } = Table;
 
 class ArtistsPage extends React.Component {
 
@@ -67,7 +41,7 @@ class ArtistsPage extends React.Component {
     updateSearchResults() {
         getSimilarArtists(this.state.artistQuery, null, null).then(res => {
             this.setState({ topArtistResults: res.results })
-            if (this.state.wasClick == 1) {
+            if (this.state.wasClick === 1) {
                 this.setState({ wasClick: 0 })
             } else {
                 this.setState({ prevArtist: this.state.artistQuery })
@@ -79,7 +53,7 @@ class ArtistsPage extends React.Component {
     componentDidMount() {
         getSimilarArtists(this.state.artistQuery, null, null).then(res => {
             this.setState({ topArtistResults: res.results })
-            if (this.state.wasClick == 1) {
+            if (this.state.wasClick === 1) {
                 this.setState({ wasClick: 0 })
             } else {
                 this.setState({ prevArtist: this.state.artistQuery })

@@ -264,11 +264,11 @@ async function get_song_key_time(req, res) {
                 SELECT Songs.name_, Songs.key_, Songs.time_signature, Songs.artist_id
                 FROM Songs USE INDEX (songs_artist_key_time), Input_Song
                 WHERE Songs.key_ = Input_Song.key_ AND Songs.time_signature = Input_Song.time_signature
-                AND Songs.name_ REGEXP '[A-Za-z0-9.,-]'
+                AND SUBSTR(Songs.name_, 1, 1) REGEXP '^[A-z]+$'
             )
             SELECT DISTINCT new_songs.name_, Artists.artist
             FROM new_songs JOIN Artists ON new_songs.artist_id = Artists.artist_id, Input_Song
-            WHERE Artists.artist REGEXP '[A-Za-z0-9.,-]'
+            WHERE SUBSTR(Artists.artist, 1, 1) REGEXP '^[A-z]+$'
             LIMIT 500;`, function (error, results, fields) {
         if (error) {
             console.log(error)
@@ -298,26 +298,27 @@ async function artist_song_type_popularity(req, res) {
                     FROM Genre USE INDEX (genre_artist_country) JOIN Input_Song_Region ON Genre.country_mb = Input_Song_Region.country_mb
                 ),
                 Songs_By_Danceability AS (
-                    SELECT name_ as name, artist_id
-                    FROM Songs USE INDEX (songs_artist_dance), Input_Song_Region
-                    WHERE Songs.danceability >= Input_Song_Region.danceability - ${similarity}
-                    AND Songs.danceability <= Input_Song_Region.danceability + ${similarity}
-                ),
-                Songs_Same_Danceability_Region AS (
-                    SELECT DISTINCT name
-                    FROM Songs_By_Danceability
-                    JOIN Artists USE INDEX (artists_all_attr) ON Songs_By_Danceability.artist_id = Artists.artist_id JOIN Genre_By_country G on Artists.artist = G.artist_mb
-                ),
-                Freq_Song_On_Chart AS (
-                    SELECT chart, region, title, COUNT(date_) as chart_appearances
-                    FROM Charts USE INDEX (chart_all_attr) JOIN Songs_Same_Danceability_Region ON Charts.title = Songs_Same_Danceability_Region.name
-                    GROUP BY title, chart, region
-                    ORDER BY chart_appearances DESC
-                )
-                SELECT chart, region, AVG(chart_appearances) as avg_appearances
-                FROM Freq_Song_On_Chart
-                GROUP BY chart, region
-                ORDER BY avg_appearances DESC;`, function (error, results, fields) {
+                SELECT name_ as name, artist_id
+                FROM Songs USE INDEX (songs_artist_dance_name), Input_Song_Region
+                WHERE Songs.danceability >= Input_Song_Region.danceability - ${similarity}# User defined similarity score
+                AND Songs.danceability <= Input_Song_Region.danceability + ${similarity}
+                AND Songs.name_ REGEXP '^[A-Za-z0-9.,-]+$'
+            ),
+            Songs_Same_Danceability_Region AS (
+                SELECT DISTINCT name
+                FROM Songs_By_Danceability
+                JOIN Artists USE INDEX (artists_all_attr) ON Songs_By_Danceability.artist_id = Artists.artist_id JOIN Genre_By_country G on Artists.artist = G.artist_mb
+            ),
+            Freq_Song_On_Chart AS (
+                SELECT chart, region, title, COUNT(date_) as chart_appearances
+                FROM Charts USE INDEX (chart_all_attr) JOIN Songs_Same_Danceability_Region ON Charts.title = Songs_Same_Danceability_Region.name
+                GROUP BY title, chart, region
+                ORDER BY chart_appearances DESC
+            )
+            SELECT chart, region, AVG(chart_appearances) as avg_appearances
+            FROM Freq_Song_On_Chart
+            GROUP BY chart, region
+            ORDER BY avg_appearances DESC;`, function (error, results, fields) {
 
         if (error) {
             console.log(error)

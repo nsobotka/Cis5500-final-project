@@ -1,20 +1,17 @@
 import React from 'react';
-import { Form, FormInput, FormGroup, Button, Card, CardBody, CardTitle, Progress } from "shards-react";
+import { Form, FormInput, FormGroup, Button } from "shards-react";
 import {
     Table,
-    Pagination,
     Select,
     Row,
     Col,
     Divider,
     Slider,
-    Rate
 } from 'antd'
 import MenuBar from '../components/MenuBar';
 import { getAlbumsRegionChart, getTopYearAlbums } from '../fetcher'
 
-const { Column, ColumnGroup } = Table;
-const { Option } = Select;
+const { Column } = Table;
 
 class AlbumPage extends React.Component {
 
