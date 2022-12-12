@@ -43,9 +43,9 @@ class ArtistsPage extends React.Component {
         super(props)
 
         this.state = {
-            artistQuery: '',
+            artistQuery: 'Bruno Mars',
             topArtistResults: [],
-            prevArtist: '',
+            prevArtist: 'Bruno Mars',
             wasClick: 0,
             selectedArtistId: window.location.search ? window.location.search.substring(1).split('=')[1] : 0,
         }
