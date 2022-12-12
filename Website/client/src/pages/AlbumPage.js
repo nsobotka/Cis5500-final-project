@@ -38,6 +38,11 @@ class AlbumPage extends React.Component {
         this.handleRegionChange = this.handleRegionChange.bind(this)
         this.updateRegionChartResults = this.updateRegionChartResults.bind(this)
         this.handleChartChange = this.handleChartChange.bind(this)
+        this.goToArtist = this.goToArtist.bind(this)
+    } 
+    
+    goToArtist(artist) {
+        window.location = `/artists?artist_mb=${artist}&page=${null}&pagesize=${null}`
     }
 
     handleYearChange(value) {
@@ -101,7 +106,11 @@ class AlbumPage extends React.Component {
                 <Divider />
                 <div style={{ width: '70vw', margin: '0 auto', marginTop: '5vh' }}>
                     <h3>Albums from the most popular artists of the year</h3>
-                    <Table
+                    <Table onRow={(record) => {
+                                return {
+                                    onClick: event => { this.goToArtist(record.artist) },
+                                };
+                            }}
                         dataSource={this.state.topYearAlbums} pagination={{ pageSizeOptions: [5, 10], defaultPageSize: 5, showQuickJumper: true }}>
                         <Column title="Artist" dataIndex="artist" key="artist" sorter={(a, b) => a.artist.localeCompare(b.artist)} />
                         <Column title="Album" dataIndex="album" key="album" sorter={(a, b) => a.album.localeCompare(b.album)} />
@@ -131,7 +140,11 @@ class AlbumPage extends React.Component {
                 </Form>
                 <div style={{ width: '70vw', margin: '0 auto', marginTop: '5vh' }}>
                     <h3>Top Albums in Region and Chart</h3>
-                    <Table
+                    <Table onRow={(record) => {
+                                return {
+                                    onClick: event => { this.goToArtist(record.artist) },
+                                };
+                            }}
                         dataSource={this.state.regionChartAlbums} pagination={{ pageSizeOptions: [5, 10], defaultPageSize: 5, showQuickJumper: true }}>
                         <Column title="Album" dataIndex="album" key="album" sorter={(a, b) => a.album.localeCompare(b.album)} />
                         <Column title="Artist" dataIndex="artist" key="artist" sorter={(a, b) => a.artist.localeCompare(b.artist)} />
