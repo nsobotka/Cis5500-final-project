@@ -169,7 +169,7 @@ class HomePage extends React.Component {
               </Col>
               <Col flex={2}>
                 <Col flex={2}><FormGroup style={{ width: '10vw' }}>
-                  <Button style={{ marginTop: '4vh' }} onClick={this.updateTop5InResults}>Search</Button>
+                  <Button style={{ marginTop: '3vh', backgroundColor: '#15C671', border: '1px' }} onClick={this.updateTop5InResults}>Search</Button>
                 </FormGroup></Col>
               </Col>
             </Row>
@@ -225,7 +225,7 @@ class HomePage extends React.Component {
               </Col>
               <Col flex={2}>
                 <Col flex={2}><FormGroup style={{ width: '10vw' }}>
-                  <Button style={{ marginTop: '4vh' }} onClick={this.updateArtistSongTypeResults}>Search</Button>
+                  <Button style={{ marginTop: '3vh', backgroundColor: '#15C671', border: '1px' }} onClick={this.updateArtistSongTypeResults}>Search</Button>
                 </FormGroup></Col>
               </Col>
             </Row>

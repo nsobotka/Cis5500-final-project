@@ -76,27 +76,24 @@ class ArtistsPage extends React.Component {
                 <MenuBar />
                 <Form style={{ width: '80vw', margin: '0 auto', marginTop: '5vh' }}>
                     <Row>
-                        <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
-                            <label>Artist</label>
-                            <FormInput placeholder="Name" value={this.state.artistQuery} onChange={this.handleArtistQueryChange} />
-                        </FormGroup></Col>
-                        <Col flex={2}><FormGroup style={{ width: '10vw' }}>
-                            <Button style={{ marginTop: '4vh' }} onClick={this.updateSearchResults}>Search</Button>
+                        <Col flex={2}><FormGroup style={{ width: '20vw', color: 'black', marginLeft: 'auto', marginRight: 'auto'}}>
+                            <label style={{ marginLeft: '43%'}}>Artist</label>
+                            <FormInput style={{ backgroundColor: 'white', color: 'black'}} placeholder="Name" value={this.state.artistQuery} onChange={this.handleArtistQueryChange}/>
+                            <Button style={{ width: '28%', marginLeft: '35%', marginTop: '1vh', backgroundColor: '#15C671', border:'1px' }} onClick={this.updateSearchResults}>Search</Button>
                         </FormGroup></Col>
                     </Row>
                     
                 </Form>
                 <Divider />
-                <div style={{ width: '70vw', margin: '0 auto', marginTop: '5vh' }}>
-                    <h3>Similar Artists to {this.state.prevArtist}</h3>
-                    {/* <Table dataSource={this.state.topArtistResults} columns={artistColumns} pagination={{ pageSizeOptions:[5, 10], defaultPageSize: 5, showQuickJumper:true }}/> */}
+                <div style={{ width: '70vw', margin: '0 auto', marginTop: '5vh'}}>
+                    <h3 style={{ color: 'black' }}>Similar Artists to {this.state.prevArtist}</h3>
 
                     <Table onRow={(record) => {
                         return {
                             onClick: event => {this.goToArtist(record.artist_mb)},
                         };}}
-                        dataSource={this.state.topArtistResults} pagination={{ pageSizeOptions: [5, 10], defaultPageSize: 5, showQuickJumper: true }}>
-                        <Column title="Artist" dataIndex="artist_mb" key="artist_mb" sorter={(a, b) => a.artist_mb.localeCompare(b.artist_mb)} />
+                        dataSource={this.state.topArtistResults} pagination={{ pageSizeOptions: [5, 10], defaultPageSize: 5, showQuickJumper: true, backgroundColor: 'grey', color: 'white'}} >
+                        <Column title="Artist" dataIndex="artist_mb" key="artist_mb" sorter={(a, b) => a.artist_mb.localeCompare(b.artist_mb)}/>
                         <Column title="Tags" dataIndex="tags_lastfm" key="Tags" />
                         <Column title="Listeners" dataIndex="listeners_lastfm" key="listeners_lastfm" sorter={(a, b) => a.listeners_lastfm - b.listeners_lastfm} />
 

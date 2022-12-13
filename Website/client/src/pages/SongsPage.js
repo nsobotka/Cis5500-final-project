@@ -120,7 +120,7 @@ class SongsPage extends React.Component {
                             <FormInput placeholder="Queen" value={this.state.artistQuery} onChange={this.handleArtistQueryChange} />
                         </FormGroup></Col>
                         <Col flex={2}><FormGroup style={{ width: '10vw' }}>
-                            <Button style={{ marginTop: '4vh' }} onClick={this.updateSearchResults}>Search</Button>
+                            <Button style={{ marginTop: '3vh', backgroundColor: '#15C671', border: '1px' }} onClick={this.updateSearchResults}>Search</Button>
                         </FormGroup></Col>
                     </Row>
 
@@ -166,14 +166,14 @@ class SongsPage extends React.Component {
                     <Row>
                         <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
                             <label>Loudness</label>
-                            <Slider range defaultValue={[0.2, 0.8]} min={0} max={1} step={0.01} onChange={this.handleLoudnessChange} />
+                            <Slider range defaultValue={[0.2, 0.8]} min={0} max={1} step={0.01} color='#15C671' onChange={this.handleLoudnessChange} />
                         </FormGroup></Col>
                         <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
                             <label>Speechiness</label>
                             <Slider range defaultValue={[0.1, 0.8]} min={0} max={1} step={0.01} onChange={this.handleSpeechinessChange} />
                         </FormGroup></Col>
                         <Col flex={2}><FormGroup style={{ width: '10vw' }}>
-                            <Button style={{ marginTop: '4vh' }} onClick={this.updateRangeSearchResults}>Search</Button>
+                            <Button style={{ marginTop: '-0.5vh', backgroundColor: '#15C671', border: '1px' }} onClick={this.updateRangeSearchResults}>Search</Button>
                         </FormGroup></Col>
                     </Row>
                     <Divider />

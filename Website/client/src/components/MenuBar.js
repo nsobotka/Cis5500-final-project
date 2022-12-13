@@ -10,9 +10,13 @@ import {
 class MenuBar extends React.Component {
     render() {
         return (
-            <Navbar type="dark" theme="primary" expand="md">
-                <NavbarBrand href="/">CIS 550 Spotify</NavbarBrand>
+            <Navbar type="dark" theme="success" expand="md">
                 <Nav navbar>
+                    <NavItem>
+                        <NavLink active href="/">
+                            CIS 550 Spotify
+                        </NavLink>
+                    </NavItem>
                     <NavItem>
                         <NavLink active href="/">
                             Home
