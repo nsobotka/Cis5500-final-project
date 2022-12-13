@@ -14,6 +14,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "shards-ui/dist/css/shards.min.css"
 import SongsPage from './pages/SongsPage';
 import AlbumPage from './pages/AlbumPage';
+import MapPage from './pages/MapPage';
 
 ReactDOM.render(
   <div>
@@ -24,6 +25,11 @@ ReactDOM.render(
 							render={() => (
 								<HomePage />
 							)}/>
+        <Route exact
+          path="/map"
+          render={() => (
+            <MapPage />
+          )} />
         <Route exact
             path="/artists"
             render={() => (

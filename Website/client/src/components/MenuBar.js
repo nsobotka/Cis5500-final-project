@@ -1,7 +1,6 @@
 import React from 'react';
 import {
     Navbar,
-    NavbarBrand,
     Nav,
     NavItem,
     NavLink
@@ -13,13 +12,18 @@ class MenuBar extends React.Component {
             <Navbar type="dark" theme="success" expand="md">
                 <Nav navbar>
                     <NavItem>
-                        <NavLink active href="/">
+                        <NavLink active href="/map">
                             CIS 550 Spotify
                         </NavLink>
                     </NavItem>
                     <NavItem>
+                        <NavLink active href="/map">
+                            Map
+                        </NavLink>
+                    </NavItem>
+                    <NavItem>
                         <NavLink active href="/">
-                            Home
+                            Country
                         </NavLink>
                     </NavItem>
                     <NavItem>

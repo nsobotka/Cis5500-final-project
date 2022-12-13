@@ -144,7 +144,8 @@ ON Charts (date_, region);
 WITH tags AS (
     SELECT country_mb, tags_lastfm, COUNT(tags_lastfm) as popularity
     FROM Genre USE INDEX (genre_country_tags)
-    GROUP BY tags_lastfm, country_mb
+    WHERE country_mb = 'Italy'
+    GROUP BY tags_lastfm
     ORDER BY popularity DESC
 )
 SELECT *

@@ -1,14 +1,12 @@
 import React from "react";
-import ReactDOM from "react-dom";
 import { Form, FormInput, FormGroup, Button } from "shards-react";
 import {
   Table,
   Row,
   Col,
 } from 'antd'
-import MapChart from "../components/MapChart";
 
-import { getArtistsFrom, getTopArtistsInRegion, tagsByRegion, artistSongTypePopularity } from "../fetcher";
+import { getArtistsFrom, getTopArtistsInRegion, tagsByRegion, tagsByRegion2, artistSongTypePopularity } from "../fetcher";
 import MenuBar from "../components/MenuBar";
 const { Column } = Table;
 
@@ -26,6 +24,7 @@ class HomePage extends React.Component {
       artistsFromResults: [],
       tagsResults: [],
       artistSongTypeResults: [],
+      selectedCountry: window.location.search ? window.location.search.substring(1).split('=')[1] : 0,
     };
     this.handleArtistChange = this.handleArtistChange.bind(this);
     this.handleSimilarityChange = this.handleSimilarityChange.bind(this);
@@ -71,6 +70,9 @@ class HomePage extends React.Component {
     getTopArtistsInRegion(this.state.countryQuery, this.state.dateQuery).then((res) => {
       this.setState({ top5InResults: res.results });
     });
+    tagsByRegion2(this.state.selectedCountry).then((res) => {
+      this.setState({ tagsResults: res.results });
+    });
     getArtistsFrom(null, null, null, null).then((res) => {
       this.setState({ artistsFromResults: res.results });
     });
@@ -87,63 +89,9 @@ class HomePage extends React.Component {
     return (
       <div>
         <MenuBar />
-
-        <MapChart />
+        
 
         <div style={{ width: "70vw", margin: "0 auto", marginTop: "5vh" }}>
-
-          <h3>Most popular artists from each country</h3>
-          
-          <Table
-            // return {
-            //   onClick: event => { this.goToMatch(record.MatchId) }, // clicking a row takes the user to a detailed view of the match in the /matches page using the MatchId parameter
-            // };
-            dataSource={this.state.artistsFromResults}
-            pagination={{
-              pageSizeOptions: [5, 10],
-              defaultPageSize: 5,
-              showQuickJumper: true,
-            }}
-          >
-            <Column
-              title="Country"
-              dataIndex="country_mb"
-              key="country_mb"
-              sorter={(a, b) => a.country_mb.localeCompare(b.country_mb)}
-            />
-            <Column title="Artist" dataIndex="artist_mb" key="artist_mb" sorter={(a, b) => a.artist_mb.localeCompare(b.artist_mb)} />
-            <Column
-              title="Listeners"
-              dataIndex="num_listeners"
-              key="num_listeners"
-              sorter={(a, b) => a.num_listeners - b.num_listeners}
-            />
-          </Table>
-
-          <h3>Most popular tags from each country</h3>
-
-          <Table
-            dataSource={this.state.tagsResults}
-            pagination={{
-              pageSizeOptions: [5, 10],
-              defaultPageSize: 5,
-              showQuickJumper: true,
-            }}
-          >
-            <Column
-              title="Country"
-              dataIndex="country_mb"
-              key="country_mb"
-              sorter={(a, b) => a.country_mb.localeCompare(b.country_mb)}
-            />
-            <Column title="Tags" dataIndex="tags_lastfm" key="tags_lastfm" />
-            <Column
-              title="Popularity"
-              dataIndex="popularity"
-              key="popularity"
-              sorter={(a, b) => a.popularity - b.popularity}
-            />
-          </Table>
 
           <Form style={{ width: "80vw", margin: "0 auto", marginTop: "5vh" }}>
             <Row>

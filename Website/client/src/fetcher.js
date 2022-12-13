@@ -8,8 +8,14 @@ const getSimilarArtists = async (artist_mb, page, pagesize) => {
     return res.json()
 }
 
-const getArtistsFrom = async (country, date, page, pagesize) => {
-    var res = await fetch(`http://${config.server_host}:${config.server_port}/artists_from?country=${country}&date=${date}&page=${page}&pagesize=${pagesize}`, {
+const getArtistsFrom = async () => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/artists_from`, {
+        method: 'GET',
+    })
+    return res.json()
+}
+const getArtistsFrom2 = async (country) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/artists_from?country=${country}`, {
         method: 'GET',
     })
     return res.json()
@@ -62,6 +68,12 @@ const tagsByRegion = async () => {
     })
     return res.json()
 }
+const tagsByRegion2 = async (country) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/tags_by_region?country=${country}`, {
+        method: 'GET',
+    })
+    return res.json()
+}
 
 const artistSongTypePopularity = async (artist, similarity) => {
     var res = await fetch(`http://${config.server_host}:${config.server_port}/artist_song_type?artist=${artist}&similarity=${similarity}`, {
@@ -80,5 +92,7 @@ export {
     getAlbumsRegionChart,
     getTopArtistsInRegion,
     tagsByRegion,
-    artistSongTypePopularity
+    artistSongTypePopularity, 
+    tagsByRegion2, 
+    getArtistsFrom2
 }

@@ -14,8 +14,29 @@ connection.connect();
 
 //Query 1
 async function tags_by_region(req, res) {
+    const country = req.query.country ? req.query.country : '';
 
-    connection.query(`WITH tags AS (
+    if (country != '') {
+        connection.query(`WITH tags AS (
+                SELECT country_mb, tags_lastfm, COUNT(tags_lastfm) as popularity
+                FROM Genre USE INDEX (genre_country_tags)
+                WHERE country_mb = '${country}'
+                GROUP BY tags_lastfm
+                ORDER BY popularity DESC
+            )
+            SELECT *
+            FROM tags
+            GROUP BY country_mb;`, function (error, results, fields) {
+
+            if (error) {
+                console.log(error)
+                res.json({ error: error })
+            } else if (results) {
+                res.json({ results: results })
+            }
+        });
+    } else {
+        connection.query(`WITH tags AS (
             SELECT country_mb, tags_lastfm, COUNT(tags_lastfm) as popularity
             FROM Genre USE INDEX (genre_country_tags)
             GROUP BY tags_lastfm, country_mb
@@ -25,19 +46,19 @@ async function tags_by_region(req, res) {
         FROM tags
         GROUP BY country_mb;`, function (error, results, fields) {
 
-        if (error) {
-            console.log(error)
-            res.json({ error: error })
-        } else if (results) {
-            res.json({ results: results })
-        }
-    });
+            if (error) {
+                console.log(error)
+                res.json({ error: error })
+            } else if (results) {
+                res.json({ results: results })
+            }
+        });
+    }
 }
 
 // Query 2
 async function artists_from(req, res) {
-    const country = req.query.country ? req.query.country : 'United States';
-    const date = req.query.date ? req.query.date : '2020';
+    const country = req.query.country ? req.query.country : '';
     //handle /artist_from query
     if (req.query.page && !isNaN(req.query.page)) {
         //if a page attribute (with an optional pagesize attribute) was passed
@@ -61,20 +82,38 @@ async function artists_from(req, res) {
         });
 
     } else {
-        connection.query(`WITH Popular_Artists_By_Country AS (
+        if (country === '') {
+            connection.query(`WITH Popular_Artists_By_Country AS (
                             SELECT Genre.country_mb, Genre.artist_mb, Genre.listeners_lastfm as num_listeners
                             FROM Genre USE INDEX (genre_country_artist_listeners)
                             GROUP BY country_mb, num_listeners
                             ORDER BY num_listeners DESC
                         )
                         SELECT * FROM Popular_Artists_By_Country GROUP BY country_mb`, function (error, results, fields) {
-            if (error) {
-                console.log(error)
-                res.json({ error: error })
-            } else if (results) {
-                res.json({ results: results })
-            }
-        });
+                if (error) {
+                    console.log(error)
+                    res.json({ error: error })
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            });
+        } else {
+            connection.query(`WITH Popular_Artists_By_Country AS (
+                            SELECT Genre.country_mb, Genre.artist_mb, Genre.listeners_lastfm as num_listeners
+                            FROM Genre USE INDEX (genre_country_artist_listeners)
+                            WHERE country_mb = '${country}'
+                            GROUP BY country_mb, num_listeners
+                            ORDER BY num_listeners DESC
+                        )
+                        SELECT * FROM Popular_Artists_By_Country GROUP BY country_mb`, function (error, results, fields) {
+                if (error) {
+                    console.log(error)
+                    res.json({ error: error })
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            });
+        }
     }
 }
 
