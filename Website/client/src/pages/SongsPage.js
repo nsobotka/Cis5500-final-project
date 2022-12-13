@@ -56,7 +56,7 @@ class SongsPage extends React.Component {
     }
 
     updateSearchResults() {
-        getSongKeyTime(this.state.songQuery).then(res => {
+        getSongKeyTime(this.state.songQuery, this.state.artistQuery).then(res => {
             this.setState({ similarSongKeyTime: res.results });
         });
         getRelatedSongs(this.state.songQuery, this.state.artistQuery).then(res => {

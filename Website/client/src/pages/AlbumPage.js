@@ -24,7 +24,7 @@ class AlbumPage extends React.Component {
             topYearAlbums: [],
             regionChartAlbums: [],
             region: 'United States',
-            chart: 'top200',
+            chart: 'viral50',
             year2: 2017,
         }
 
@@ -92,8 +92,8 @@ class AlbumPage extends React.Component {
                             <Slider range defaultValue={[2020]} min={1970} max={2020} step={1} onChange={this.handleYearChange} />
                         </FormGroup></Col>
                         <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
-                            <label>Region</label>
-                            <FormInput placeholder="Region" value={this.state.region1} onChange={this.handleRegion1Change} />
+                            <label>Country</label>
+                            <FormInput placeholder="Country" value={this.state.region1} onChange={this.handleRegion1Change} />
                         </FormGroup></Col>
                         <Col flex={2}><FormGroup style={{ width: '10vw' }}>
                             <Button style={{ marginTop: '3vh', backgroundColor: '#15C671', border: '1px' }} onClick={this.updateYearResults}>Search</Button>
@@ -117,20 +117,20 @@ class AlbumPage extends React.Component {
                 <Divider />
                 <Form style={{ width: '80vw', margin: '0 auto', marginTop: '5vh' }}>
                     <Row>
-                        <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
+                        <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto', marginLeft: '10vw' }}>
                             <label>Year</label>
                             <Slider theme='success' range defaultValue={[2017]} min={1970} max={2020} step={1} onChange={this.handleYear2Change} />
                         </FormGroup></Col>
-                        <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
-                            <label>Region</label>
-                            <FormInput placeholder="Region" value={this.state.region} onChange={this.handleRegionChange} />
+                        <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto', marginLeft: '10vw'  }}>
+                            <label>Country</label>
+                            <FormInput placeholder="Country" value={this.state.region} onChange={this.handleRegionChange} />
                         </FormGroup></Col>
-                        <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
+                        <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto', marginLeft: '10vw' }}>
                             <label>Chart</label>
                             <br></br>
                             <Select options={[{value:'top200', label:'Top 200'}, {value:'viral50', label:'Viral 50'}]} value={this.state.chart} onChange={this.handleChartChange} />
                         </FormGroup></Col>
-                        <Col flex={2}><FormGroup style={{ width: '10vw' }}>
+                        <Col flex={2}><FormGroup style={{ width: '10vw'}}>
                             <Button style={{ marginTop: '3vh', backgroundColor: '#15C671', border: '1px' }} onClick={this.updateRegionChartResults}>Search</Button>
                         </FormGroup></Col>
                     </Row>

@@ -269,7 +269,7 @@ async function get_song_key_time(req, res) {
             SELECT DISTINCT new_songs.name_, Artists.artist
             FROM new_songs JOIN Artists ON new_songs.artist_id = Artists.artist_id, Input_Song
             WHERE SUBSTR(Artists.artist, 1, 1) REGEXP '^[A-z]+$'
-            LIMIT 500;`, function (error, results, fields) {
+            LIMIT 500`, function (error, results, fields) {
         if (error) {
             console.log(error)
             res.json({ error: error })
@@ -332,7 +332,7 @@ async function artist_song_type_popularity(req, res) {
 //Query 10
 async function albums_region_chart(req, res) {
     const region = req.query.region ? req.query.region : 'United States'
-    const chart = req.query.chart ? req.query.chart : 'top200'
+    const chart = req.query.chart ? req.query.chart : 'viral50'
     const year = req.query.year ? req.query.year : '2017'
     connection.query(`WITH song_count AS (
         SELECT title, artist, COUNT(date_) as chart_appearances
