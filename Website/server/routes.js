@@ -254,7 +254,7 @@ async function get_related_songs(req, res) {
         LIMIT 5 # this parameter can also be user determined
     ), Similar_Artists_Songs AS (
         SELECT title, artist, COUNT(title) as chart_freq
-        FROM Charts JOIN Similar_Artists ON Charts.artist = Similar_Artists.artist_mb
+        FROM Charts USE INDEX (chart_title_artist) JOIN Similar_Artists ON Charts.artist = Similar_Artists.artist_mb
         GROUP BY title, artist
         ORDER BY chart_freq DESC
     )

@@ -245,7 +245,7 @@ WITH Input_Song AS (
 # Similar artist top chart songs
 , Similar_Artists_Songs AS (
     SELECT title, artist, COUNT(title) as chart_freq
-    FROM Charts JOIN Similar_Artists ON Charts.artist = Similar_Artists.artist_mb
+    FROM Charts USE INDEX (chart_title_artist) JOIN Similar_Artists ON Charts.artist = Similar_Artists.artist_mb
     GROUP BY title, artist
     ORDER BY chart_freq DESC
 )
