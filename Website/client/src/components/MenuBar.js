@@ -6,6 +6,7 @@ import {
     NavLink
 } from "shards-react";
 
+// Bar at the top of the screen that lets you switch pages
 class MenuBar extends React.Component {
     render() {
         return (

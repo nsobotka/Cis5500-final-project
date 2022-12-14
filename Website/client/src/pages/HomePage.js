@@ -90,7 +90,7 @@ class HomePage extends React.Component {
       <div>
         <MenuBar />
         
-
+        {/* User input for most popular artists in a country */}
         <div style={{ width: "70vw", margin: "0 auto", marginTop: "5vh" }}>
 
           <Form style={{ width: "80vw", margin: "0 auto", marginTop: "5vh" }}>
@@ -148,7 +148,8 @@ class HomePage extends React.Component {
               sorter={(a, b) => a.artist_freq - b.artist_freq}
             />
           </Table>
-
+          
+          {/* User input for the average number of appearances of similar songs */}
           <Form style={{ width: "80vw", margin: "0 auto", marginTop: "5vh" }}>
             <Row>
               <Col flex={2}>
@@ -178,12 +179,9 @@ class HomePage extends React.Component {
               </Col>
             </Row>
           </Form>
-          <h3>Average number of chart appearances from artists from the same country with similar songs</h3>
+          <h3>Average number of chart appearances for similar styles of music </h3>
 
           <Table
-            // return {
-            //   onClick: event => { this.goToMatch(record.MatchId) }, // clicking a row takes the user to a detailed view of the match in the /matches page using the MatchId parameter
-            // };
             dataSource={this.state.artistSongTypeResults}
             pagination={{
               pageSizeOptions: [5, 10],

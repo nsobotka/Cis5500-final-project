@@ -51,7 +51,7 @@ class MapPage extends React.Component {
         return (
             <div>
                 <MenuBar />
-
+                {/* Map with defined click points */}
                 <img src="https://upload.wikimedia.org/wikipedia/commons/9/95/World_map_green.png" width="1200" marginLef="auto" alt="Map" usemap="#world" class="center"></img>
                 <map name="world">
                     <area shape="circle" coords="100,110,80" href="/map?country=United States" alt="United States"></area>

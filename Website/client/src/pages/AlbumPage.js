@@ -85,6 +85,7 @@ class AlbumPage extends React.Component {
         return (
             <div>
                 <MenuBar />
+                {/* User input for albums by popular artist */}
                 <Form style={{ width: '80vw', margin: '0 auto', marginTop: '5vh' }}>
                     <Row>
                         <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
@@ -115,6 +116,7 @@ class AlbumPage extends React.Component {
                     </Table>
                 </div>
                 <Divider />
+                {/* User input for most popular albums */}
                 <Form style={{ width: '80vw', margin: '0 auto', marginTop: '5vh' }}>
                     <Row>
                         <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto', marginLeft: '10vw' }}>

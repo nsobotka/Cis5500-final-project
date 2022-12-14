@@ -19,15 +19,16 @@ TODO.
 TODO.
 
 ## Layout
-Cleaning.py contains all of our preprocessing code. It was uploaded from the saved csvs through DataGrip. 
-Website contains all of the website code. Here are some of the important files
-- Client: 
-  - public: contains index.html
-  - src: 
-    - fetcher and index js files
-    - components: MenuBar file
-    - pages: All of the js files for pages
-- Server: server contains routes.js and server.js
+- Cleaning.py: contains all of our preprocessing code. It was uploaded from the saved csvs through DataGrip. 
+- Temp save of queries.txt: contains copies of all queries used on the website. Multiple versions of queries, such as map queries, are not included
+- Website:
+  - Client: 
+    - public: contains index.html
+    - src: 
+      - fetcher and index js files
+      - components: MenuBar file
+      - pages: All of the js files for pages
+  - Server: server contains routes.js and server.js
 
 ## Motivation
 Motivated by our common use of Spotify and interest in music, we decided to create a website that allows a user to interact with music data on Spotify. We aim to visualize trends in music across time, geography, and genres, and provide a platform for learning about your favorite artists.

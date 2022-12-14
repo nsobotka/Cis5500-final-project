@@ -1,6 +1,7 @@
 // import { count } from 'console'
 import config from './config.json'
 
+// each route basically does what the name of the function is. These are called by the pages so that the queries get run. 
 const getSimilarArtists = async (artist_mb, page, pagesize) => {
     var res = await fetch(`http://${config.server_host}:${config.server_port}/artists?artist_mb=${artist_mb}&page=${page}&pagesize=${pagesize}`, {
         method: 'GET',

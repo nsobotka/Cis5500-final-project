@@ -74,6 +74,7 @@ class ArtistsPage extends React.Component {
         return (
             <div>
                 <MenuBar />
+                {/* User input for most finding similar artists */}
                 <Form style={{ width: '80vw', margin: '0 auto', marginTop: '5vh' }}>
                     <Row>
                         <Col flex={2}><FormGroup style={{ width: '20vw', color: 'black', marginLeft: 'auto', marginRight: 'auto'}}>

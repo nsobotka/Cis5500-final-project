@@ -109,6 +109,7 @@ class SongsPage extends React.Component {
         return (
             <div>
                 <MenuBar />
+                {/* User input for the key & time signature query, and the related songs query */}
                 <Form style={{ width: '80vw', margin: '0 auto', marginTop: '5vh' }}>
                     <Row>
                         <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>
@@ -150,6 +151,7 @@ class SongsPage extends React.Component {
                     </Table>
                 </div>
                 <Divider />
+                {/* User input for the search by song attribute query */}
                 <Form style={{ width: '80vw', margin: '0 auto', marginTop: '5vh' }}>
                     <Row>
                         <Col flex={2}><FormGroup style={{ width: '20vw', margin: '0 auto' }}>

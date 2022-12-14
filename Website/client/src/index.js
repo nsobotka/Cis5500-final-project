@@ -16,6 +16,7 @@ import SongsPage from './pages/SongsPage';
 import AlbumPage from './pages/AlbumPage';
 import MapPage from './pages/MapPage';
 
+// renders the pages at the following urls
 ReactDOM.render(
   <div>
     <Router>
