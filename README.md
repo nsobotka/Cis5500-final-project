@@ -13,10 +13,13 @@ Authors: Tasos Panagopoulos, Aviel Resnick, Nathan Sobotka, Joshua Valluru
 * [Structure](#structure)
 
 ## Building
-TODO.
+run:
+npm -i
+cd into server: run npm start
+cd into client: run npm start
 
 ## Dependencies
-TODO.
+Dependencies are listed in package.json
 
 ## Layout
 - Cleaning.py: contains all of our preprocessing code. It was uploaded from the saved csvs through DataGrip. 
