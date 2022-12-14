@@ -54,13 +54,13 @@ class MapPage extends React.Component {
                 {/* Map with defined click points */}
                 <img src="https://upload.wikimedia.org/wikipedia/commons/9/95/World_map_green.png" width="1200" marginLef="auto" alt="Map" usemap="#world" class="center"></img>
                 <map name="world">
-                    <area shape="circle" coords="100,110,80" href="/map?country=United States" alt="United States"></area>
-                    <area shape="circle" coords="400,100,50" href="/map?country=Italy" alt="Italy"></area>
-                    <area shape="circle" coords="230,300,60" href="/map?country=Brazil" alt="Brazil"></area>
-                    <area shape="circle" coords="760,350,80" href="/map?country=Australia" alt="Australia"></area>
-                    <area shape="circle" coords="450,350,40" href="/map?country=South Africa" alt="South Africa"></area>
-                    <area shape="circle" coords="680,150,40" href="/map?country=China" alt="China"></area>
-                    <area shape="circle" coords="550,80,50" href="/map?country=Russia" alt="Russia"></area>
+                    <area shape="circle" coords="100,110,80" href="/?country=United States" alt="United States"></area>
+                    <area shape="circle" coords="400,100,50" href="/?country=Italy" alt="Italy"></area>
+                    <area shape="circle" coords="230,300,60" href="/?country=Brazil" alt="Brazil"></area>
+                    <area shape="circle" coords="760,350,80" href="/?country=Australia" alt="Australia"></area>
+                    <area shape="circle" coords="450,350,40" href="/?country=South Africa" alt="South Africa"></area>
+                    <area shape="circle" coords="680,150,40" href="/?country=China" alt="China"></area>
+                    <area shape="circle" coords="550,80,50" href="/?country=Russia" alt="Russia"></area>
                 </map>
 
                 <div style={{ width: "70vw", margin: "0 auto", marginTop: "5vh" }}>

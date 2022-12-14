@@ -6,7 +6,7 @@ import {
 	Switch
 } from 'react-router-dom';
 
-import HomePage from './pages/HomePage';
+import CountryPage from './pages/CountryPage';
 import ArtistsPage from './pages/ArtistsPage';
 import 'antd/dist/antd.css';
 
@@ -24,12 +24,12 @@ ReactDOM.render(
         <Route exact
 							path="/"
 							render={() => (
-								<HomePage />
+								<MapPage />
 							)}/>
         <Route exact
-          path="/map"
+          path="/country"
           render={() => (
-            <MapPage />
+            <CountryPage />
           )} />
         <Route exact
             path="/artists"

@@ -10,7 +10,7 @@ import { getArtistsFrom, getTopArtistsInRegion, tagsByRegion, tagsByRegion2, art
 import MenuBar from "../components/MenuBar";
 const { Column } = Table;
 
-class HomePage extends React.Component {
+class CountryPage extends React.Component {
 
   constructor(props) {
     super(props);
@@ -213,4 +213,4 @@ class HomePage extends React.Component {
   }
 }
 
-export default HomePage;
+export default CountryPage;

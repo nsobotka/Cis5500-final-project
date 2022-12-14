@@ -13,17 +13,17 @@ class MenuBar extends React.Component {
             <Navbar type="dark" theme="success" expand="md">
                 <Nav navbar>
                     <NavItem>
-                        <NavLink active href="/map">
+                        <NavLink active href="/">
                             CIS 550 Spotify
                         </NavLink>
                     </NavItem>
                     <NavItem>
-                        <NavLink active href="/map">
+                        <NavLink active href="/">
                             Map
                         </NavLink>
                     </NavItem>
                     <NavItem>
-                        <NavLink active href="/">
+                        <NavLink active href="/country">
                             Country
                         </NavLink>
                     </NavItem>
