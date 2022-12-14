@@ -1,16 +1,33 @@
-# Musicols (Name in Progress)
+# Spotify DB - Song and Album Recommendations
 Cis5500 Final Project - Group 5
 
 Authors: Tasos Panagopoulos, Aviel Resnick, Nathan Sobotka, Joshua Valluru
 
-# How to build
-TODO.
-
 ## Table of contents
+* [How to build](#Building)
+* [Dependencies](#Dependencies)
+* [Layout](#Layout)
 * [Motivation](#motivation)
 * [Project Description](#description)
 * [Dataset Overview](#datasets)
 * [Structure](#structure)
+
+## Building
+TODO.
+
+## Dependencies
+TODO.
+
+## Layout
+Cleaning.py contains all of our preprocessing code. It was uploaded from the saved csvs through DataGrip. 
+Website contains all of the website code. Here are some of the important files
+- Client: 
+  - public: contains index.html
+  - src: 
+    - fetcher and index js files
+    - components: MenuBar file
+    - pages: All of the js files for pages
+- Server: server contains routes.js and server.js
 
 ## Motivation
 Motivated by our common use of Spotify and interest in music, we decided to create a website that allows a user to interact with music data on Spotify. We aim to visualize trends in music across time, geography, and genres, and provide a platform for learning about your favorite artists.
