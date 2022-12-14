@@ -14,7 +14,7 @@ Authors: Tasos Panagopoulos, Aviel Resnick, Nathan Sobotka, Joshua Valluru
 
 ## Building
 run:
-npm -i
+npm install
 cd into server: run npm start
 cd into client: run npm start
 
